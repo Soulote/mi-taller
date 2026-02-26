@@ -14,7 +14,7 @@ export function GlassCard({ children, className = "", onClick }: { children: Rea
 }
 
 // GlassHeader
-export function GlassHeader({ title = "Mi Taller · v1.0.0" }: { title?: string }) {
+export function GlassHeader({ title = "Mi Taller · v1.1.0" }: { title?: string }) {
     return (
         <header className="glass-header px-4 py-3 flex justify-between items-center mb-6">
             <Link href="/dashboard" className="text-lg font-semibold tracking-tight">

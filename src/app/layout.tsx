@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Mi Taller · v1.0.0",
+  title: "Mi Taller · v1.1.0",
   description: "Gestión de trabajos de reparación",
 };
 

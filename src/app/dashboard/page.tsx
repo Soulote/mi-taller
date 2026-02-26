@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockStore } from "@/lib/mockStore";
 import { JobStatus, GlassCard, GlassHeader, StatusPill, FloatingActionButton, PrimaryButton } from "@/components/ui";
+import { listTrabajosPopulated, type TrabajoPopulated } from "@/lib/trabajosRepository";
 
 const TABS: { label: string; value: JobStatus | 'todos' }[] = [
     { label: 'Pendiente', value: 'pendiente' },
@@ -13,15 +13,49 @@ const TABS: { label: string; value: JobStatus | 'todos' }[] = [
 
 export default function DashboardPage() {
     const router = useRouter();
-    const todos = mockStore.getTrabajosPopulated();
-
-    // Default to Listo if any, else En curso. Calculated only on mount theoretically, but useMemo is fine.
-    const initialTab = useMemo(() => {
-        return todos.some(t => t.estado === 'listo') ? 'listo' : 'en_curso';
-    }, [todos]);
-
-    const [activeTab, setActiveTab] = useState<JobStatus | 'todos'>(initialTab as JobStatus);
+    const [todos, setTodos] = useState<TrabajoPopulated[]>([]);
+    const [activeTab, setActiveTab] = useState<JobStatus | 'todos'>('en_curso');
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
+    const [tabInitialized, setTabInitialized] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+
+        const loadTrabajos = async () => {
+            setLoading(true);
+            setLoadError("");
+
+            try {
+                const trabajos = await listTrabajosPopulated();
+                if (active) {
+                    setTodos(trabajos);
+                }
+            } catch (error) {
+                if (active) {
+                    const message = error instanceof Error ? error.message : "No se pudieron cargar los trabajos.";
+                    setLoadError(message);
+                }
+            } finally {
+                if (active) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        void loadTrabajos();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (tabInitialized || loading) return;
+        setActiveTab(todos.some((trabajo) => trabajo.estado === 'listo') ? 'listo' : 'en_curso');
+        setTabInitialized(true);
+    }, [loading, tabInitialized, todos]);
 
     const filtered = useMemo(() => {
         return todos.filter(t => {
@@ -99,7 +133,15 @@ export default function DashboardPage() {
 
                 {/* List */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filtered.length === 0 ? (
+                    {loading ? (
+                        <div className="col-span-full py-12 text-center text-muted">
+                            Cargando trabajos...
+                        </div>
+                    ) : loadError ? (
+                        <div className="col-span-full py-12 text-center text-red-500">
+                            {loadError}
+                        </div>
+                    ) : filtered.length === 0 ? (
                         <div className="col-span-full py-12 text-center text-muted">
                             No se encontraron trabajos.
                         </div>

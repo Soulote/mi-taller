@@ -1,28 +1,66 @@
-# Mi Taller v1.0.0
+# Mi Taller v1.1.0
 
-Sistema de gestión interna para trabajos de reparación (PCs, notebooks, impresoras, etc.).
-Diseñado especialmente para uso en PC y teléfonos móviles, asegurando que no se olviden entregas ni detalles ("qué falta") de cada trabajo.
+Sistema de gestion interna para trabajos de reparacion (PCs, notebooks, impresoras, etc.).
+Disenado especialmente para uso en PC y telefonos moviles, asegurando que no se olviden entregas ni detalles de cada trabajo.
 
-## Tecnologías
+## Tecnologias
+
 - Next.js (App Router)
 - TypeScript
-- Tailwind CSS (Glassmorphism & Dark Mode)
-- Local Mock Data (Sin base de datos real aún)
+- Tailwind CSS
+- Supabase (Postgres + API)
+- Deploy recomendado: Vercel
 
-## Cómo ejecutar localmente
+## Modos de persistencia
+
+La app ahora soporta dos modos:
+
+- `supabase`: si existen `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- `mock`: fallback automatico a datos en memoria si no hay variables configuradas.
+
+## Como ejecutar localmente
 
 1. Instalar dependencias:
-   ```bash
-   npm install
-   ```
-2. Iniciar el servidor de desarrollo:
-   ```bash
-   npm run dev
-   ```
-3. Abrir en el navegador:
-   [http://localhost:3000](http://localhost:3000)
+
+```bash
+npm install
+```
+
+2. Copiar variables de entorno:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Completar `.env.local` con tus valores de Supabase.
+
+4. Iniciar el servidor de desarrollo:
+
+```bash
+npm run dev
+```
+
+5. Abrir en el navegador:
+
+`http://localhost:3000`
+
+## Setup de Supabase
+
+1. Crear un proyecto en Supabase.
+2. En el SQL Editor, ejecutar `supabase/schema.sql`.
+3. (Opcional) Cargar datos iniciales ejecutando `supabase/seed.sql`.
+4. Copiar URL y anon key del proyecto a `.env.local`.
+
+## Deploy a Vercel (staging)
+
+1. Importar el repo en Vercel.
+2. En `Settings -> Environment Variables`, agregar:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Hacer deploy de la rama principal o una rama de staging.
 
 ## Estructura
-- `/src/app`: Rutas y páginas principales del sistema (`/login`, `/dashboard`, `/trabajos/[id]`, `/trabajos/nuevo`, `/historial`).
-- `/src/lib`: Lógica de datos mock (`mockData.ts`, `mockStore.ts`) e integraciones (`whatsapp.ts`).
-- `/src/components`: Componentes de UI reutilizables.
+
+- `/src/app`: rutas y paginas (`/login`, `/dashboard`, `/trabajos/[id]`, `/trabajos/nuevo`, `/historial`).
+- `/src/lib`: logica de datos mock, repositorio de trabajos y utilidades (`whatsapp.ts`).
+- `/supabase`: esquema SQL y semilla opcional.

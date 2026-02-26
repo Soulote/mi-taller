@@ -1,15 +1,47 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockStore } from "@/lib/mockStore";
 import { GlassCard, GlassHeader, StatusPill } from "@/components/ui";
+import { listTrabajosPopulated, type TrabajoPopulated } from "@/lib/trabajosRepository";
 
 export default function HistorialPage() {
     const router = useRouter();
-    const todos = mockStore.getTrabajosPopulated();
-
+    const [todos, setTodos] = useState<TrabajoPopulated[]>([]);
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
+
+    useEffect(() => {
+        let active = true;
+
+        const loadTrabajos = async () => {
+            setLoading(true);
+            setLoadError("");
+
+            try {
+                const trabajos = await listTrabajosPopulated();
+                if (active) {
+                    setTodos(trabajos);
+                }
+            } catch (error) {
+                if (active) {
+                    const message = error instanceof Error ? error.message : "No se pudieron cargar los trabajos.";
+                    setLoadError(message);
+                }
+            } finally {
+                if (active) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        void loadTrabajos();
+
+        return () => {
+            active = false;
+        };
+    }, []);
 
     const entregados = useMemo(() => {
         return todos.filter(t => {
@@ -50,7 +82,15 @@ export default function HistorialPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {entregados.length === 0 ? (
+                    {loading ? (
+                        <div className="col-span-full py-12 text-center text-muted">
+                            Cargando historial...
+                        </div>
+                    ) : loadError ? (
+                        <div className="col-span-full py-12 text-center text-red-500">
+                            {loadError}
+                        </div>
+                    ) : entregados.length === 0 ? (
                         <div className="col-span-full py-12 text-center text-muted">
                             No hay trabajos entregados.
                         </div>

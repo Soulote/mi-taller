@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0] - 2026-02-26
+
+### Agregado
+- **Persistencia cloud con Supabase**: nuevo repositorio de datos para listar, crear y actualizar trabajos en Postgres.
+- **Esquema SQL inicial**: archivo `supabase/schema.sql` con tablas, relaciones, RLS y politicas para entorno de staging.
+- **Seed opcional**: archivo `supabase/seed.sql` para cargar datos de ejemplo equivalentes al mock local.
+- **Variables de entorno versionadas**: nuevo `.env.example` para configuracion de URL y anon key.
+
+### Cambiado
+- **Pantallas principales conectadas al repositorio**: `/dashboard`, `/historial`, `/trabajos/nuevo` y `/trabajos/[id]` ahora consumen datos asincronos.
+- **Fallback automatico**: si no hay variables de Supabase, la app sigue funcionando con store en memoria.
+
 ## [1.0.0] - 2026-02-25
 
 ### Agregado

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockStore } from "@/lib/mockStore";
 import { GlassCard, GlassHeader, PrimaryButton, TextField, TextArea } from "@/components/ui";
+import { createTrabajoCompleto } from "@/lib/trabajosRepository";
 
 const EQUIPO_TIPOS = ["Notebook", "PC Escritorio", "All in One", "Impresora", "MacBook", "Otro"];
 
@@ -16,11 +16,24 @@ export default function NuevoTrabajoPage() {
         marcaModelo: "",
         problema: ""
     });
+    const [submitError, setSubmitError] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newId = mockStore.addTrabajoCompleto(formData);
-        router.push(`/trabajos/${newId}`);
+
+        setSubmitError("");
+        setIsSaving(true);
+
+        try {
+            const newId = await createTrabajoCompleto(formData);
+            router.push(`/trabajos/${newId}`);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "No se pudo crear el trabajo.";
+            setSubmitError(message);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -82,9 +95,10 @@ export default function NuevoTrabajoPage() {
                             className="mt-2"
                         />
 
-                        <PrimaryButton type="submit" className="mt-4">
-                            Crear Trabajo
+                        <PrimaryButton type="submit" className="mt-4" disabled={isSaving}>
+                            {isSaving ? "Guardando..." : "Crear Trabajo"}
                         </PrimaryButton>
+                        {submitError && <p className="text-sm text-red-500">{submitError}</p>}
                     </form>
                 </GlassCard>
             </div>
