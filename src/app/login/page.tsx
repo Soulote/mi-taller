@@ -16,7 +16,7 @@ export default function LoginPage() {
             <div className="w-full max-w-sm">
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-bold tracking-tight mb-3">Mi Taller</h1>
-                    <p className="text-muted">v1.1.0 · Gestión interna</p>
+                    <p className="text-muted">v1.1.1 · Gestión interna</p>
                 </div>
 
                 <GlassCard>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GlassCard, GlassHeader, PrimaryButton, TextField, TextArea } from "@/components/ui";
+import { GlassCard, GlassHeader, PrimaryButton, TextField, TextArea, ToastBanner } from "@/components/ui";
 import { createTrabajoCompleto } from "@/lib/trabajosRepository";
 
 const EQUIPO_TIPOS = ["Notebook", "PC Escritorio", "All in One", "Impresora", "MacBook", "Otro"];
@@ -16,13 +16,25 @@ export default function NuevoTrabajoPage() {
         marcaModelo: "",
         problema: ""
     });
-    const [submitError, setSubmitError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [toast, setToast] = useState<{ type: "error" | "success"; message: string } | null>(null);
+
+    useEffect(() => {
+        if (!toast) return;
+
+        const timeout = window.setTimeout(() => {
+            setToast(null);
+        }, 3200);
+
+        return () => {
+            window.clearTimeout(timeout);
+        };
+    }, [toast]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        setSubmitError("");
+        setToast(null);
         setIsSaving(true);
 
         try {
@@ -30,7 +42,7 @@ export default function NuevoTrabajoPage() {
             router.push(`/trabajos/${newId}`);
         } catch (error) {
             const message = error instanceof Error ? error.message : "No se pudo crear el trabajo.";
-            setSubmitError(message);
+            setToast({ type: "error", message });
         } finally {
             setIsSaving(false);
         }
@@ -38,6 +50,14 @@ export default function NuevoTrabajoPage() {
 
     return (
         <div className="flex-1 flex flex-col pb-8 max-w-3xl mx-auto w-full">
+            {toast && (
+                <ToastBanner
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
+
             <GlassHeader />
 
             <div className="px-4 md:px-6 flex flex-col gap-6">
@@ -98,7 +118,6 @@ export default function NuevoTrabajoPage() {
                         <PrimaryButton type="submit" className="mt-4" disabled={isSaving}>
                             {isSaving ? "Guardando..." : "Crear Trabajo"}
                         </PrimaryButton>
-                        {submitError && <p className="text-sm text-red-500">{submitError}</p>}
                     </form>
                 </GlassCard>
             </div>

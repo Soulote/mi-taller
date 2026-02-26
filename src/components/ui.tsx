@@ -14,7 +14,7 @@ export function GlassCard({ children, className = "", onClick }: { children: Rea
 }
 
 // GlassHeader
-export function GlassHeader({ title = "Mi Taller · v1.1.0" }: { title?: string }) {
+export function GlassHeader({ title = "Mi Taller · v1.1.1" }: { title?: string }) {
     return (
         <header className="glass-header px-4 py-3 flex justify-between items-center mb-6">
             <Link href="/dashboard" className="text-lg font-semibold tracking-tight">
@@ -111,5 +111,35 @@ export function FloatingActionButton({ onClick, icon = "+" }: { onClick: () => v
         >
             {icon}
         </button>
+    );
+}
+
+export function ToastBanner({
+    message,
+    type,
+    onClose,
+}: {
+    message: string;
+    type: "success" | "error";
+    onClose: () => void;
+}) {
+    const toneClass = type === "success"
+        ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
+        : "border-red-500/50 bg-red-500/15 text-red-200";
+
+    return (
+        <div className={`fixed top-4 right-4 z-50 max-w-sm rounded-xl border px-4 py-3 shadow-glass backdrop-blur-xl ${toneClass}`}>
+            <div className="flex items-start gap-3">
+                <p className="text-sm font-medium leading-snug">{message}</p>
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="text-xs text-muted hover:text-text transition-colors"
+                    aria-label="Cerrar"
+                >
+                    Cerrar
+                </button>
+            </div>
+        </div>
     );
 }

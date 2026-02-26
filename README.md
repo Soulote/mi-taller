@@ -1,4 +1,4 @@
-# Mi Taller v1.1.0
+# Mi Taller v1.1.1
 
 Sistema de gestion interna para trabajos de reparacion (PCs, notebooks, impresoras, etc.).
 Disenado especialmente para uso en PC y telefonos moviles, asegurando que no se olviden entregas ni detalles de cada trabajo.
@@ -11,12 +11,10 @@ Disenado especialmente para uso en PC y telefonos moviles, asegurando que no se 
 - Supabase (Postgres + API)
 - Deploy recomendado: Vercel
 
-## Modos de persistencia
+## Persistencia
 
-La app ahora soporta dos modos:
-
-- `supabase`: si existen `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-- `mock`: fallback automatico a datos en memoria si no hay variables configuradas.
+La app usa Supabase de forma obligatoria para listar, crear y actualizar trabajos.
+Si faltan `NEXT_PUBLIC_SUPABASE_URL` o `NEXT_PUBLIC_SUPABASE_ANON_KEY`, la app muestra error de configuracion y no usa mocks.
 
 ## Como ejecutar localmente
 
@@ -62,5 +60,5 @@ npm run dev
 ## Estructura
 
 - `/src/app`: rutas y paginas (`/login`, `/dashboard`, `/trabajos/[id]`, `/trabajos/nuevo`, `/historial`).
-- `/src/lib`: logica de datos mock, repositorio de trabajos y utilidades (`whatsapp.ts`).
+- `/src/lib`: cliente de Supabase, repositorio de trabajos y utilidades (`whatsapp.ts`).
 - `/supabase`: esquema SQL y semilla opcional.

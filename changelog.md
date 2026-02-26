@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 2026-02-26
+
+### Fix
+- **Persistencia real en Supabase (crear/editar/estado)**: altas y actualizaciones de trabajos ahora escriben en DB con errores visibles y logs en consola.
+- **Dashboard e Historial leen desde DB sin cache/mocks**: listado unificado desde Supabase ordenado por `created_at` y sin fallback silencioso a datos locales.
+
 ## [1.1.0] - 2026-02-26
 
 ### Agregado

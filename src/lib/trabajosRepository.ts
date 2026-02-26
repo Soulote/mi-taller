@@ -1,7 +1,32 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { JobStatus } from "@/components/ui";
-import type { Cliente, Equipo, Trabajo } from "./mockData";
-import { mockStore } from "./mockStore";
+import { getSupabaseBrowserClient } from "./supabaseClient";
+
+export interface Cliente {
+    id: string;
+    nombre: string;
+    telefono: string;
+}
+
+export interface Equipo {
+    id: string;
+    clienteId: string;
+    tipo: string;
+    marcaModelo: string;
+}
+
+export interface Trabajo {
+    id: string;
+    clienteId: string;
+    equipoId: string;
+    estado: JobStatus;
+    problema: string;
+    queFalta: string;
+    notas: string;
+    materialesCosto: number;
+    manoObra: number;
+    createdAt: string;
+    updatedAt: string;
+}
 
 export interface TrabajoPopulated extends Trabajo {
     cliente: Cliente;
@@ -43,20 +68,23 @@ interface TrabajoRow {
     updated_at: string;
 }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const cloudPersistenceEnabled = Boolean(supabaseUrl && supabaseAnonKey);
+function failWithSupabaseError(context: string, error: unknown): never {
+    console.error(`[supabase] ${context}`, error);
 
-let supabaseClient: SupabaseClient | null = null;
-
-function getSupabaseClient(): SupabaseClient | null {
-    if (!cloudPersistenceEnabled) return null;
-
-    if (!supabaseClient) {
-        supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!);
+    if (error && typeof error === "object" && "message" in error) {
+        const message = (error as { message?: unknown }).message;
+        if (typeof message === "string") {
+            throw new Error(`${context}: ${message}`);
+        }
     }
 
-    return supabaseClient;
+    throw new Error(context);
+}
+
+function assertNoError(context: string, error: unknown) {
+    if (error) {
+        failWithSupabaseError(context, error);
+    }
 }
 
 function toCliente(row: ClienteRow): Cliente {
@@ -97,8 +125,6 @@ function buildTrabajoUpdatePayload(data: Partial<Trabajo>) {
         updated_at: new Date().toISOString(),
     };
 
-    if (data.clienteId !== undefined) payload.cliente_id = data.clienteId;
-    if (data.equipoId !== undefined) payload.equipo_id = data.equipoId;
     if (data.estado !== undefined) payload.estado = data.estado;
     if (data.problema !== undefined) payload.problema = data.problema;
     if (data.queFalta !== undefined) payload.que_falta = data.queFalta;
@@ -109,37 +135,29 @@ function buildTrabajoUpdatePayload(data: Partial<Trabajo>) {
     return payload;
 }
 
-function ensureNoError(error: { message: string } | null, context: string) {
-    if (error) {
-        throw new Error(`${context}: ${error.message}`);
-    }
-}
-
 export async function listTrabajosPopulated(): Promise<TrabajoPopulated[]> {
-    const client = getSupabaseClient();
-    if (!client) {
-        return mockStore.getTrabajosPopulated();
-    }
+    const client = getSupabaseBrowserClient();
 
-    const { data: trabajoRowsRaw, error: trabajosError } = await client
+    const { data: trabajosRaw, error: trabajosError } = await client
         .from("trabajos")
         .select("*")
-        .order("updated_at", { ascending: false });
-    ensureNoError(trabajosError, "No se pudo obtener la lista de trabajos");
+        .order("created_at", { ascending: false });
 
-    const trabajoRows = (trabajoRowsRaw ?? []) as TrabajoRow[];
-    if (trabajoRows.length === 0) return [];
+    assertNoError("No se pudo obtener la lista de trabajos", trabajosError);
 
-    const clienteIds = Array.from(new Set(trabajoRows.map((row) => row.cliente_id)));
-    const equipoIds = Array.from(new Set(trabajoRows.map((row) => row.equipo_id)));
+    const trabajos = (trabajosRaw ?? []) as TrabajoRow[];
+    if (trabajos.length === 0) return [];
+
+    const clienteIds = Array.from(new Set(trabajos.map((row) => row.cliente_id)));
+    const equipoIds = Array.from(new Set(trabajos.map((row) => row.equipo_id)));
 
     const [clientesResult, equiposResult] = await Promise.all([
         client.from("clientes").select("*").in("id", clienteIds),
         client.from("equipos").select("*").in("id", equipoIds),
     ]);
 
-    ensureNoError(clientesResult.error, "No se pudo obtener la lista de clientes");
-    ensureNoError(equiposResult.error, "No se pudo obtener la lista de equipos");
+    assertNoError("No se pudo obtener la lista de clientes", clientesResult.error);
+    assertNoError("No se pudo obtener la lista de equipos", equiposResult.error);
 
     const clientesMap = new Map(
         ((clientesResult.data ?? []) as ClienteRow[]).map((cliente) => [cliente.id, toCliente(cliente)]),
@@ -148,79 +166,112 @@ export async function listTrabajosPopulated(): Promise<TrabajoPopulated[]> {
         ((equiposResult.data ?? []) as EquipoRow[]).map((equipo) => [equipo.id, toEquipo(equipo)]),
     );
 
-    return trabajoRows.flatMap((row) => {
+    return trabajos.map((row) => {
         const cliente = clientesMap.get(row.cliente_id);
         const equipo = equiposMap.get(row.equipo_id);
-        if (!cliente || !equipo) return [];
 
-        return [{ ...toTrabajo(row), cliente, equipo }];
+        if (!cliente || !equipo) {
+            failWithSupabaseError("Relaciones incompletas al leer trabajos", {
+                trabajoId: row.id,
+                clienteId: row.cliente_id,
+                equipoId: row.equipo_id,
+            });
+        }
+
+        return {
+            ...toTrabajo(row),
+            cliente,
+            equipo,
+        };
     });
 }
 
 export async function getTrabajoPopulated(id: string): Promise<TrabajoPopulated | null> {
-    const client = getSupabaseClient();
-    if (!client) {
-        return mockStore.getTrabajo(id);
-    }
+    const client = getSupabaseBrowserClient();
 
-    const { data: trabajoRowRaw, error: trabajoError } = await client
+    const { data: trabajoRaw, error: trabajoError } = await client
         .from("trabajos")
         .select("*")
         .eq("id", id)
         .maybeSingle();
-    ensureNoError(trabajoError, "No se pudo obtener el trabajo");
 
-    if (!trabajoRowRaw) return null;
+    assertNoError("No se pudo obtener el trabajo", trabajoError);
 
-    const trabajoRow = trabajoRowRaw as TrabajoRow;
+    if (!trabajoRaw) {
+        return null;
+    }
+
+    const trabajo = trabajoRaw as TrabajoRow;
 
     const [clienteResult, equipoResult] = await Promise.all([
-        client.from("clientes").select("*").eq("id", trabajoRow.cliente_id).maybeSingle(),
-        client.from("equipos").select("*").eq("id", trabajoRow.equipo_id).maybeSingle(),
+        client.from("clientes").select("*").eq("id", trabajo.cliente_id).single(),
+        client.from("equipos").select("*").eq("id", trabajo.equipo_id).single(),
     ]);
 
-    ensureNoError(clienteResult.error, "No se pudo obtener el cliente del trabajo");
-    ensureNoError(equipoResult.error, "No se pudo obtener el equipo del trabajo");
-
-    if (!clienteResult.data || !equipoResult.data) return null;
+    assertNoError("No se pudo obtener el cliente del trabajo", clienteResult.error);
+    assertNoError("No se pudo obtener el equipo del trabajo", equipoResult.error);
 
     return {
-        ...toTrabajo(trabajoRow),
+        ...toTrabajo(trabajo),
         cliente: toCliente(clienteResult.data as ClienteRow),
         equipo: toEquipo(equipoResult.data as EquipoRow),
     };
 }
 
-export async function updateTrabajo(id: string, data: Partial<Trabajo>): Promise<void> {
-    const client = getSupabaseClient();
-    if (!client) {
-        mockStore.updateTrabajo(id, data);
-        return;
-    }
-
+export async function updateTrabajo(id: string, data: Partial<Trabajo>): Promise<Trabajo> {
+    const client = getSupabaseBrowserClient();
     const payload = buildTrabajoUpdatePayload(data);
 
-    const { error } = await client.from("trabajos").update(payload).eq("id", id);
-    ensureNoError(error, "No se pudo actualizar el trabajo");
+    const { data: updatedRowRaw, error } = await client
+        .from("trabajos")
+        .update(payload)
+        .eq("id", id)
+        .select("*")
+        .single();
+
+    assertNoError("No se pudo actualizar el trabajo", error);
+
+    return toTrabajo(updatedRowRaw as TrabajoRow);
 }
 
 export async function createTrabajoCompleto(data: NewTrabajoInput): Promise<string> {
-    const client = getSupabaseClient();
-    if (!client) {
-        return mockStore.addTrabajoCompleto(data);
-    }
+    const client = getSupabaseBrowserClient();
 
-    const { data: clienteRaw, error: clienteError } = await client
+    const { data: clienteExistenteRaw, error: buscarClienteError } = await client
         .from("clientes")
-        .insert({
-            nombre: data.nombre,
-            telefono: data.telefono,
-        })
-        .select("id")
-        .single();
-    ensureNoError(clienteError, "No se pudo crear el cliente");
+        .select("*")
+        .eq("telefono", data.telefono)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    const clienteId = (clienteRaw as { id: string }).id;
+    assertNoError("No se pudo buscar cliente por telefono", buscarClienteError);
+
+    const clienteExistente = clienteExistenteRaw as ClienteRow | null;
+
+    let clienteId = clienteExistente?.id;
+
+    if (!clienteId) {
+        const { data: nuevoClienteRaw, error: crearClienteError } = await client
+            .from("clientes")
+            .insert({
+                nombre: data.nombre,
+                telefono: data.telefono,
+            })
+            .select("id")
+            .single();
+
+        assertNoError("No se pudo crear el cliente", crearClienteError);
+
+        clienteId = (nuevoClienteRaw as { id: string }).id;
+    } else if (clienteExistente && clienteExistente.nombre !== data.nombre) {
+        const { error: actualizarClienteError } = await client
+            .from("clientes")
+            .update({ nombre: data.nombre })
+            .eq("id", clienteId);
+
+        assertNoError("No se pudo actualizar el nombre del cliente", actualizarClienteError);
+    }
 
     const { data: equipoRaw, error: equipoError } = await client
         .from("equipos")
@@ -231,7 +282,8 @@ export async function createTrabajoCompleto(data: NewTrabajoInput): Promise<stri
         })
         .select("id")
         .single();
-    ensureNoError(equipoError, "No se pudo crear el equipo");
+
+    assertNoError("No se pudo crear el equipo", equipoError);
 
     const equipoId = (equipoRaw as { id: string }).id;
 
@@ -249,7 +301,8 @@ export async function createTrabajoCompleto(data: NewTrabajoInput): Promise<stri
         })
         .select("id")
         .single();
-    ensureNoError(trabajoError, "No se pudo crear el trabajo");
+
+    assertNoError("No se pudo crear el trabajo", trabajoError);
 
     return (trabajoRaw as { id: string }).id;
 }

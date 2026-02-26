@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { JobStatus, GlassCard, GlassHeader, PrimaryButton, SecondaryButton, TextField, TextArea } from "@/components/ui";
+import { JobStatus, GlassCard, GlassHeader, PrimaryButton, SecondaryButton, TextField, TextArea, ToastBanner } from "@/components/ui";
 import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 import { getTrabajoPopulated, type TrabajoPopulated, updateTrabajo as updateTrabajoRecord } from "@/lib/trabajosRepository";
 
@@ -45,7 +45,19 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
     const [isSaving, setIsSaving] = useState(false);
     const [loadError, setLoadError] = useState("");
     const [errorStatus, setErrorStatus] = useState("");
-    const [saveError, setSaveError] = useState("");
+    const [toast, setToast] = useState<{ type: "error" | "success"; message: string } | null>(null);
+
+    useEffect(() => {
+        if (!toast) return;
+
+        const timeout = window.setTimeout(() => {
+            setToast(null);
+        }, 2800);
+
+        return () => {
+            window.clearTimeout(timeout);
+        };
+    }, [toast]);
 
     useEffect(() => {
         let active = true;
@@ -88,7 +100,7 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
     const handleSave = async (silent = false) => {
         if (!data) return false;
 
-        setSaveError("");
+        setToast(null);
         setIsSaving(true);
 
         try {
@@ -100,13 +112,13 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
             }
 
             if (!silent) {
-                alert("Guardado correctamente");
+                setToast({ type: "success", message: "Guardado" });
             }
 
             return true;
         } catch (error) {
             const message = error instanceof Error ? error.message : "No se pudo guardar el trabajo.";
-            setSaveError(message);
+            setToast({ type: "error", message });
             return false;
         } finally {
             setIsSaving(false);
@@ -117,7 +129,7 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
         if (!data) return;
 
         setErrorStatus("");
-        setSaveError("");
+        setToast(null);
 
         if (newStatus === "en_curso" && !edits.queFalta.trim()) {
             setErrorStatus("Para pasar a 'En curso', debes especificar 'Qué falta'.");
@@ -127,7 +139,7 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
         setIsSaving(true);
 
         try {
-            await updateTrabajoRecord(data.id, { estado: newStatus, ...edits });
+            await updateTrabajoRecord(data.id, { estado: newStatus });
             const refreshed = await getTrabajoPopulated(params.id);
             if (refreshed) {
                 setData(refreshed);
@@ -136,10 +148,12 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
 
             if (newStatus === "entregado") {
                 router.push("/historial");
+            } else {
+                setToast({ type: "success", message: "Estado actualizado" });
             }
         } catch (error) {
             const message = error instanceof Error ? error.message : "No se pudo actualizar el estado.";
-            setSaveError(message);
+            setToast({ type: "error", message });
         } finally {
             setIsSaving(false);
         }
@@ -201,6 +215,14 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
 
     return (
         <div className="flex-1 flex flex-col pb-12 max-w-3xl mx-auto w-full">
+            {toast && (
+                <ToastBanner
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
+
             <GlassHeader />
 
             <div className="px-4 md:px-6 flex flex-col gap-6">
@@ -315,8 +337,6 @@ export default function TrabajoDetailPage({ params }: { params: { id: string } }
                             ✔ Marcar como Entregado
                         </SecondaryButton>
                     )}
-
-                    {saveError && <p className="text-sm text-red-500">{saveError}</p>}
                 </div>
             </div>
         </div>
