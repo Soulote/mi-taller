@@ -102,7 +102,7 @@ function ChangelogBody() {
   );
 }
 
-export function GlassHeader({ title = "Mi Taller · v1.1.3" }: { title?: string }) {
+export function GlassHeader({ title = "Mi Taller · v1.1.4" }: { title?: string }) {
   const [open, setOpen] = useState(false);
 
   return (

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4] - 2026-02-26
+
+### Cambiado
+- **Rediseño completo de Inicio**: nueva composicion minimalista enfocada en decision rapida y lectura inmediata.
+- **Eliminación de scroll horizontal**: el bloque de indicadores se organiza en un grid 2x2 fijo en todas las resoluciones.
+- **Dashboard KPI siempre visible**: los cuatro KPIs operativos se renderizan en todo momento con numero protagonista.
+- **Mejora de microinteracciones**: animaciones fade+scale con stagger y feedback hover/tap mas claro en cards y acciones.
+
 ## [1.1.3] - 2026-02-26
 
 ### Cambiado
