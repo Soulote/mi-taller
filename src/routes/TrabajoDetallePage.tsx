@@ -16,6 +16,7 @@ import {
   type TrabajoPopulated,
   updateTrabajo as updateTrabajoRecord,
 } from "@/lib/trabajosRepository";
+import { getTrabajoGanancia } from "@/lib/finanzas";
 
 const STATUS_OPTS: { label: string; value: JobStatus }[] = [
   { label: "Pendiente", value: "pendiente" },
@@ -28,8 +29,9 @@ interface TrabajoEdits {
   problema: string;
   queFalta: string;
   notas: string;
-  materialesCosto: number;
-  manoObra: number;
+  precioCobrado: number;
+  costoMateriales: number;
+  costoExtra: number;
 }
 
 function buildEditsFromTrabajo(data: TrabajoPopulated): TrabajoEdits {
@@ -37,8 +39,9 @@ function buildEditsFromTrabajo(data: TrabajoPopulated): TrabajoEdits {
     problema: data.problema,
     queFalta: data.queFalta,
     notas: data.notas,
-    materialesCosto: data.materialesCosto,
-    manoObra: data.manoObra,
+    precioCobrado: data.precioCobrado,
+    costoMateriales: data.costoMateriales,
+    costoExtra: data.costoExtra,
   };
 }
 
@@ -50,8 +53,9 @@ export default function TrabajoDetallePage() {
     problema: "",
     queFalta: "",
     notas: "",
-    materialesCosto: 0,
-    manoObra: 0,
+    precioCobrado: 0,
+    costoMateriales: 0,
+    costoExtra: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -157,7 +161,10 @@ export default function TrabajoDetallePage() {
     setIsSaving(true);
 
     try {
-      await updateTrabajoRecord(data.id, { estado: newStatus });
+      await updateTrabajoRecord(data.id, {
+        estado: newStatus,
+        fechaEntrega: newStatus === "entregado" ? (data.fechaEntrega ?? new Date().toISOString()) : data.fechaEntrega,
+      });
       const refreshed = await getTrabajoPopulated(data.id);
       if (refreshed) {
         setData(refreshed);
@@ -185,9 +192,9 @@ export default function TrabajoDetallePage() {
 
     const message = buildWhatsAppMessage({
       nombre: data.cliente.nombre,
-      materiales: edits.materialesCosto,
-      manoObra: edits.manoObra,
-      total: edits.materialesCosto + edits.manoObra,
+      materiales: edits.costoMateriales,
+      manoObra: Math.max(0, getTrabajoGanancia(edits)),
+      total: edits.precioCobrado,
     });
     const url = buildWhatsAppUrl({ telefono: data.cliente.telefono, message });
     window.open(url, "_blank");
@@ -229,7 +236,7 @@ export default function TrabajoDetallePage() {
     );
   }
 
-  const total = edits.materialesCosto + edits.manoObra;
+  const ganancia = getTrabajoGanancia(edits);
 
   return (
     <div className="max-w-3xl mx-auto w-full px-4 md:px-6 pb-12 flex flex-col gap-5 md:gap-6">
@@ -317,28 +324,39 @@ export default function TrabajoDetallePage() {
       </GlassCard>
 
       <GlassCard className="flex flex-col gap-4.5">
-        <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Presupuesto</h3>
+        <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Finanzas</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <TextField
-            label="Materiales ($)"
+            label="Precio cobrado ($)"
             type="number"
-            value={edits.materialesCosto.toString()}
+            min="0"
+            value={edits.precioCobrado.toString()}
             onChange={(event) =>
-              setEdits((prev) => ({ ...prev, materialesCosto: parseNum(event.target.value) }))
+              setEdits((prev) => ({ ...prev, precioCobrado: parseNum(event.target.value) }))
             }
           />
           <TextField
-            label="Mano de Obra ($)"
+            label="Costo materiales ($)"
             type="number"
-            value={edits.manoObra.toString()}
-            onChange={(event) => setEdits((prev) => ({ ...prev, manoObra: parseNum(event.target.value) }))}
+            min="0"
+            value={edits.costoMateriales.toString()}
+            onChange={(event) =>
+              setEdits((prev) => ({ ...prev, costoMateriales: parseNum(event.target.value) }))
+            }
+          />
+          <TextField
+            label="Costo extra ($)"
+            type="number"
+            min="0"
+            value={edits.costoExtra.toString()}
+            onChange={(event) => setEdits((prev) => ({ ...prev, costoExtra: parseNum(event.target.value) }))}
           />
         </div>
 
         <div className="flex justify-between items-center p-4 bg-black/5 dark:bg-white/5 rounded-2xl mt-2 border border-cardBorder">
-          <span className="font-semibold text-muted">Total a cobrar:</span>
-          <span className="text-2xl font-bold">${total.toLocaleString("es-AR")}</span>
+          <span className="font-semibold text-muted">Ganancia estimada:</span>
+          <span className="text-2xl font-bold">${ganancia.toLocaleString("es-AR")}</span>
         </div>
       </GlassCard>
 

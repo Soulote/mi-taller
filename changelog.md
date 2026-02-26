@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.5] - 2026-02-26
+
+### Cambiado
+- **Finanzas: campos por trabajo (precio, materiales, extra)**: se agregan columnas y formularios para cargar `precio_cobrado`, `costo_materiales` y `costo_extra`.
+- **Ganancias: cálculo y vista previa en formularios**: se muestra ganancia estimada en alta/edicion y se persiste junto con el estado del trabajo.
+- **Inicio: resumen financiero mensual + gráficos compactos**: KPIs del mes y visualizaciones de facturacion/ganancia de ultimos 6 meses integradas en Inicio.
+- **Regla: solo entregados cuentan para finanzas**: los agregados financieros consideran exclusivamente trabajos en estado `entregado`.
+
 ## [1.1.4] - 2026-02-26
 
 ### Cambiado

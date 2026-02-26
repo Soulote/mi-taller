@@ -104,7 +104,7 @@ function ChangelogBody() {
   );
 }
 
-export function GlassHeader({ title = "Mi Taller · v1.1.4" }: { title?: string }) {
+export function GlassHeader({ title = "Mi Taller · v1.1.5" }: { title?: string }) {
   const [open, setOpen] = useState(false);
   const navLinkClass =
     "ui-interactive relative rounded-full px-4 py-2 text-base font-medium text-text/90 hover:text-text before:absolute before:left-4 before:right-4 before:bottom-[5px] before:h-px before:bg-current before:origin-left before:scale-x-0 before:transition-transform before:duration-200 hover:before:scale-x-100";

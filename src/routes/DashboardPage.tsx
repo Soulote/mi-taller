@@ -84,6 +84,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (loading) return;
 
+    if (sortParam === "antiguedad_desc" && !estadoParam) {
+      setActiveTab("todos");
+      setTabInitialized(true);
+      return;
+    }
+
     if (estadoParam === "activos") {
       setActiveTab("todos");
       setTabInitialized(true);
@@ -100,7 +106,7 @@ export default function DashboardPage() {
 
     setActiveTab(todos.some((trabajo) => trabajo.estado === "listo") ? "listo" : "en_curso");
     setTabInitialized(true);
-  }, [estadoParam, loading, tabInitialized, todos]);
+  }, [estadoParam, loading, sortParam, tabInitialized, todos]);
 
   const filtered = useMemo(() => {
     return todos.filter((trabajo) => {
@@ -155,7 +161,10 @@ export default function DashboardPage() {
     setSavingId(trabajo.id);
 
     try {
-      await updateTrabajo(trabajo.id, { estado: nextStatus });
+      await updateTrabajo(trabajo.id, {
+        estado: nextStatus,
+        fechaEntrega: nextStatus === "entregado" ? (trabajo.fechaEntrega ?? new Date().toISOString()) : trabajo.fechaEntrega,
+      });
       const refreshed = await listTrabajosPopulated();
       setTodos(refreshed);
       setToast({ type: "success", message: `Estado cambiado a ${nextStatus.replace("_", " ")}.` });

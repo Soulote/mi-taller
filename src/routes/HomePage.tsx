@@ -2,7 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { Bell, ClipboardList, Clock3, Hammer, ListChecks, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import {
+  Bar,
+  BarChart,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { GlassCard, PrimaryButton, SecondaryButton } from "@/components/ui";
+import { buildFinanceSummary } from "@/lib/finanzas";
 import { listTrabajosPopulated, type TrabajoPopulated } from "@/lib/trabajosRepository";
 
 function calcMaxAgeInDays(trabajos: TrabajoPopulated[]) {
@@ -90,6 +99,11 @@ export default function HomePage() {
     ];
   }, [activos]);
 
+  const finanzas = useMemo(() => buildFinanceSummary(trabajos), [trabajos]);
+
+  const formatMoney = (value: number) =>
+    value.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+
   return (
     <div className="max-w-5xl mx-auto w-full px-4 md:px-6 pb-10 flex flex-col gap-6">
       <section className="flex items-center justify-between">
@@ -172,6 +186,94 @@ export default function HomePage() {
             </SecondaryButton>
           </div>
         </GlassCard>
+      </section>
+
+      <section className="flex flex-col gap-3 border-t border-cardBorder/70 pt-4">
+        <h2 className="text-sm uppercase tracking-[0.1em] font-semibold text-muted">FINANZAS (MES)</h2>
+
+        {loading ? (
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-3 gap-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <GlassCard key={index} className="!p-4">
+                  <div className="animate-pulse space-y-3">
+                    <div className="h-3 rounded bg-black/10 dark:bg-white/10" />
+                    <div className="h-7 rounded bg-black/10 dark:bg-white/10" />
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+            <GlassCard className="!p-4">
+              <div className="h-24 rounded-xl animate-pulse bg-black/10 dark:bg-white/10" />
+            </GlassCard>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <GlassCard className="!p-4">
+                <p className="text-xs uppercase tracking-[0.08em] text-muted font-semibold">Facturado</p>
+                <p className="text-xl md:text-2xl font-semibold tracking-tight mt-1">
+                  {formatMoney(finanzas.facturadoMes)}
+                </p>
+              </GlassCard>
+              <GlassCard className="!p-4">
+                <p className="text-xs uppercase tracking-[0.08em] text-muted font-semibold">Ganancia</p>
+                <p className="text-xl md:text-2xl font-semibold tracking-tight mt-1">
+                  {formatMoney(finanzas.gananciaMes)}
+                </p>
+              </GlassCard>
+              <GlassCard className="!p-4">
+                <p className="text-xs uppercase tracking-[0.08em] text-muted font-semibold">Ticket prom</p>
+                <p className="text-xl md:text-2xl font-semibold tracking-tight mt-1">
+                  {formatMoney(finanzas.ticketPromedioMes)}
+                </p>
+              </GlassCard>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <GlassCard className="!p-4">
+                <p className="text-xs uppercase tracking-[0.08em] text-muted font-semibold mb-2">Facturacion 6 meses</p>
+                <div className="h-28">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={finanzas.series6Meses} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
+                      <Tooltip
+                        cursor={{ fill: "rgba(148,163,184,0.12)" }}
+                        formatter={(value: number) => formatMoney(Number(value) || 0)}
+                        labelFormatter={(label: string | number) => `${label}`}
+                      />
+                      <Bar dataKey="facturacion" radius={[6, 6, 3, 3]} fill="rgba(59,130,246,0.58)" animationDuration={700} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </GlassCard>
+
+              <GlassCard className="!p-4">
+                <p className="text-xs uppercase tracking-[0.08em] text-muted font-semibold mb-2">Ganancia 6 meses</p>
+                <div className="h-28">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={finanzas.series6Meses} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
+                      <Tooltip
+                        cursor={{ stroke: "rgba(148,163,184,0.45)", strokeWidth: 1 }}
+                        formatter={(value: number) => formatMoney(Number(value) || 0)}
+                        labelFormatter={(label: string | number) => `${label}`}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="ganancia"
+                        stroke="rgba(16,185,129,0.88)"
+                        strokeWidth={2.4}
+                        dot={false}
+                        animationDuration={700}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </GlassCard>
+            </div>
+
+            {loadError && <p className="text-xs text-red-500">{loadError}</p>}
+          </>
+        )}
       </section>
     </div>
   );

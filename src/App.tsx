@@ -15,7 +15,7 @@ function AppShell() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isLogin && <GlassHeader title="Mi Taller · v1.1.4" />}
+      {!isLogin && <GlassHeader title="Mi Taller · v1.1.5" />}
 
       <main className="flex-1">
         <AnimatePresence mode="wait" initial={false}>

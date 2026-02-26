@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GlassCard, PrimaryButton, TextArea, TextField, ToastBanner } from "@/components/ui";
 import { createTrabajoCompleto } from "@/lib/trabajosRepository";
+import { getTrabajoGanancia } from "@/lib/finanzas";
 
 const EQUIPO_TIPOS = ["Notebook", "PC Escritorio", "All in One", "Impresora", "MacBook", "Otro"];
 
@@ -13,6 +14,9 @@ export default function NuevoTrabajoPage() {
     tipo: "Notebook",
     marcaModelo: "",
     problema: "",
+    precioCobrado: "0",
+    costoMateriales: "0",
+    costoExtra: "0",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<{ type: "error" | "success"; message: string } | null>(null);
@@ -30,7 +34,12 @@ export default function NuevoTrabajoPage() {
     setIsSaving(true);
 
     try {
-      const newId = await createTrabajoCompleto(formData);
+      const newId = await createTrabajoCompleto({
+        ...formData,
+        precioCobrado: Number(formData.precioCobrado) || 0,
+        costoMateriales: Number(formData.costoMateriales) || 0,
+        costoExtra: Number(formData.costoExtra) || 0,
+      });
       navigate(`/trabajos/${newId}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "No se pudo crear el trabajo.";
@@ -39,6 +48,12 @@ export default function NuevoTrabajoPage() {
       setIsSaving(false);
     }
   };
+
+  const gananciaEstimada = getTrabajoGanancia({
+    precioCobrado: Number(formData.precioCobrado) || 0,
+    costoMateriales: Number(formData.costoMateriales) || 0,
+    costoExtra: Number(formData.costoExtra) || 0,
+  });
 
   return (
     <div className="max-w-3xl mx-auto w-full px-4 md:px-6 pb-8 flex flex-col gap-6">
@@ -115,6 +130,36 @@ export default function NuevoTrabajoPage() {
             required
             className="mt-2"
           />
+
+          <h3 className="text-lg font-semibold border-b border-cardBorder pb-2 mt-3">Finanzas</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <TextField
+              label="Precio cobrado ($)"
+              type="number"
+              min="0"
+              value={formData.precioCobrado}
+              onChange={(event) => setFormData((prev) => ({ ...prev, precioCobrado: event.target.value }))}
+            />
+            <TextField
+              label="Costo materiales ($)"
+              type="number"
+              min="0"
+              value={formData.costoMateriales}
+              onChange={(event) => setFormData((prev) => ({ ...prev, costoMateriales: event.target.value }))}
+            />
+            <TextField
+              label="Costo extra ($)"
+              type="number"
+              min="0"
+              value={formData.costoExtra}
+              onChange={(event) => setFormData((prev) => ({ ...prev, costoExtra: event.target.value }))}
+            />
+          </div>
+
+          <div className="rounded-2xl border border-cardBorder bg-black/5 dark:bg-white/5 px-4 py-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-muted">Ganancia estimada</span>
+            <span className="text-xl font-semibold tracking-tight">${gananciaEstimada.toLocaleString("es-AR")}</span>
+          </div>
 
           <PrimaryButton type="submit" className="mt-4" disabled={isSaving}>
             {isSaving ? "Guardando..." : "Crear Trabajo"}
