@@ -26,6 +26,13 @@
   --cta-soft-bg: rgba(17, 24, 39, 0.08);
   --cta-soft-bg-hover: rgba(17, 24, 39, 0.13);
   --cta-soft-text: #1f2937;
+  --focus-ring: rgba(30, 41, 59, 0.28);
+  --motion-fast: 200ms;
+  --hover-y: -1px;
+  --tap-y: 1px;
+  --tap-scale: 0.98;
+  --tap-brightness: 0.97;
+  --hover-brightness: 1.03;
   --noise-opacity: 0.03;
 }
 
@@ -48,6 +55,9 @@
     --cta-soft-bg: rgba(226, 232, 240, 0.12);
     --cta-soft-bg-hover: rgba(226, 232, 240, 0.2);
     --cta-soft-text: #e2e8f0;
+    --focus-ring: rgba(148, 163, 184, 0.32);
+    --tap-brightness: 0.96;
+    --hover-brightness: 1.02;
     --noise-opacity: 0.025;
   }
 }
@@ -92,13 +102,76 @@ body::before {
     transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
   }
 
-  .glass-card-interactive:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-elev);
+  .ui-interactive {
+    transition:
+      transform var(--motion-fast) ease-out,
+      box-shadow var(--motion-fast) ease-out,
+      filter var(--motion-fast) ease-out,
+      background-color var(--motion-fast) ease-out,
+      border-color var(--motion-fast) ease-out,
+      color var(--motion-fast) ease-out,
+      opacity var(--motion-fast) ease-out;
+  }
+
+  @media (hover: hover) {
+    .ui-interactive:hover:not(:disabled) {
+      transform: translateY(var(--hover-y));
+      box-shadow: var(--shadow-elev);
+      filter: brightness(var(--hover-brightness));
+    }
+
+    .ui-chip:hover {
+      transform: translateY(-1px);
+      filter: brightness(var(--hover-brightness));
+    }
+  }
+
+  .ui-interactive:active:not(:disabled) {
+    transform: translateY(var(--tap-y)) scale(var(--tap-scale));
+    filter: brightness(var(--tap-brightness));
+  }
+
+  .ui-chip {
+    transition:
+      transform var(--motion-fast) ease-out,
+      filter var(--motion-fast) ease-out,
+      border-color var(--motion-fast) ease-out,
+      background-color var(--motion-fast) ease-out;
+  }
+
+  .ui-chip:active {
+    transform: translateY(var(--tap-y)) scale(0.98);
+    filter: brightness(var(--tap-brightness));
+  }
+
+  .ui-interactive:focus-visible,
+  .ui-chip:focus-visible,
+  .glass-card-interactive:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--focus-ring), var(--shadow-elev);
+  }
+
+  .ui-interactive:disabled {
+    transition: none;
+    filter: none;
+    box-shadow: none;
+  }
+
+  .glass-card-interactive {
+    transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out, filter var(--motion-fast) ease-out;
+  }
+
+  @media (hover: hover) {
+    .glass-card-interactive:hover {
+      transform: translateY(var(--hover-y));
+      box-shadow: var(--shadow-elev);
+      filter: brightness(1.01);
+    }
   }
 
   .glass-card-interactive:active {
-    transform: scale(0.99);
+    transform: translateY(var(--tap-y)) scale(0.99);
+    filter: brightness(var(--tap-brightness));
   }
 
   .glass-header {

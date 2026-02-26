@@ -207,7 +207,7 @@ export default function TrabajoDetallePage() {
         <p className="text-red-500 text-center">{loadError}</p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="text-gray-900 dark:text-gray-100 underline decoration-1 underline-offset-4"
+          className="ui-interactive rounded-full px-3 py-1.5 text-gray-900 dark:text-gray-100 underline decoration-1 underline-offset-4"
         >
           Volver al Dashboard
         </button>
@@ -221,7 +221,7 @@ export default function TrabajoDetallePage() {
         <p className="text-muted">Trabajo no encontrado.</p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-4 text-gray-900 dark:text-gray-100 underline decoration-1 underline-offset-4"
+          className="ui-interactive mt-4 rounded-full px-3 py-1.5 text-gray-900 dark:text-gray-100 underline decoration-1 underline-offset-4"
         >
           Volver al Dashboard
         </button>
@@ -238,7 +238,7 @@ export default function TrabajoDetallePage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate(data.estado === "entregado" ? "/historial" : "/dashboard")}
-          className="p-2 -ml-2 text-muted hover:text-text rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          className="ui-interactive p-2 -ml-2 text-muted hover:text-text rounded-full"
         >
           <svg
             width="24"
@@ -276,7 +276,7 @@ export default function TrabajoDetallePage() {
                 void handleStatusChange(opt.value);
               }}
               disabled={isSaving}
-              className={`py-2 px-3 rounded-full text-sm font-medium transition-all border ${
+              className={`ui-chip py-2 px-3 rounded-full text-sm font-medium border ${
                 data.estado === opt.value
                   ? "bg-[var(--cta-bg)] border-[var(--cta-bg)] text-[var(--cta-text)] shadow-[var(--shadow-elev)]"
                   : "bg-card border-cardBorder text-text hover:bg-black/5 dark:hover:bg-white/5"
@@ -358,7 +358,7 @@ export default function TrabajoDetallePage() {
               void handleWhatsApp();
             }}
             disabled={isSaving}
-            className="w-full py-3 px-4 bg-[#25D366] text-white rounded-xl shadow-glass font-medium transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
+            className="ui-interactive w-full py-3 px-4 bg-[#25D366] text-white rounded-full shadow-[var(--shadow-elev)] font-medium flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
           >
             Avisar por WhatsApp
           </button>

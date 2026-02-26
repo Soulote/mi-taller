@@ -6,6 +6,8 @@
 - **Refinamiento visual glass iOS sobrio**: nuevos tokens de color, bordes, sombras y blur mas suave para mejorar legibilidad sin perder identidad.
 - **Jerarquia de cards y chips unificados**: cliente, telefono, equipo, descripcion y bloque "Falta" con mejor espaciado y componente `StatusChip` consistente.
 - **Controles estilo iOS**: botones pill con microanimaciones, CTA "Pasar al siguiente estado" con icono de flecha y header mas compacto en mobile.
+- **UI: refinamiento glass sobrio**: fondo con gradiente equilibrado, noise minimo y cards con contraste local mas limpio.
+- **UX: microinteracciones en botones/chips/cards (hover/tap)**: elevacion suave en desktop, estado pressed en mobile, focus-visible accesible y disabled sin rebote.
 
 ## [1.2.0] - 2026-02-26
 

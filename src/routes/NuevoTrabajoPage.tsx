@@ -47,7 +47,7 @@ export default function NuevoTrabajoPage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate("/dashboard")}
-          className="p-2 -ml-2 text-muted hover:text-text rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          className="ui-interactive p-2 -ml-2 text-muted hover:text-text rounded-full"
         >
           <svg
             width="24"

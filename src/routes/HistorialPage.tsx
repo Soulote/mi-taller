@@ -63,7 +63,7 @@ export default function HistorialPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/dashboard")}
-            className="p-2 -ml-2 text-muted hover:text-text rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="ui-interactive p-2 -ml-2 text-muted hover:text-text rounded-full"
           >
             <svg
               width="24"
@@ -122,7 +122,7 @@ export default function HistorialPage() {
 
               <p className="text-sm leading-relaxed text-muted line-clamp-2">{trabajo.problema}</p>
 
-              <div className="mt-auto inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-xs">
+              <div className="ui-chip mt-auto inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-xs">
                 <span className="uppercase tracking-[0.08em] text-muted font-semibold">Falta</span>
                 <span className={trabajo.queFalta ? "text-text" : "text-muted italic"}>{trabajo.queFalta || "Sin definir"}</span>
               </div>

@@ -140,14 +140,14 @@ export default function DashboardPage() {
           <h2 className="text-[1.65rem] leading-tight font-semibold tracking-tight">Tablero</h2>
           <button
             onClick={() => navigate("/historial")}
-            className="sm:hidden px-3 py-1.5 rounded-full border border-cardBorder bg-card text-xs font-semibold text-muted hover:text-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="ui-interactive sm:hidden px-3 py-1.5 rounded-full border border-cardBorder bg-card text-xs font-semibold text-muted hover:text-text"
           >
             Historial
           </button>
           <div className="hidden sm:flex items-center gap-2">
             <button
               onClick={() => navigate("/historial")}
-              className="px-3.5 py-2 rounded-full border border-cardBorder bg-card text-sm font-medium text-muted hover:text-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              className="ui-interactive px-3.5 py-2 rounded-full border border-cardBorder bg-card text-sm font-medium text-muted hover:text-text"
             >
               Historial
             </button>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
             <button
               key={tab.value}
               onClick={() => setActiveTab(tab.value as JobStatus)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+              className={`ui-chip px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap border ${
                 activeTab === tab.value
                   ? "bg-gray-900 text-white border-transparent shadow-md dark:bg-white dark:text-gray-900"
                   : "bg-card text-muted border-cardBorder hover:text-text hover:bg-black/5 dark:hover:bg-white/5"
@@ -222,13 +222,13 @@ export default function DashboardPage() {
                 <p className="text-sm leading-relaxed text-muted line-clamp-2">{trabajo.problema}</p>
 
                 <div className="mt-auto flex flex-col gap-2.5">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-xs">
+                  <div className="ui-chip inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-xs">
                     <span className="uppercase tracking-[0.08em] text-muted font-semibold">Falta</span>
                     <span className={trabajo.queFalta ? "text-text" : "text-muted italic"}>{trabajo.queFalta || "Sin definir"}</span>
                   </div>
 
                   {warningListo && (
-                    <p className="text-xs font-semibold text-orange-600 dark:text-orange-300 bg-[rgba(251,191,36,0.16)] border border-[rgba(251,191,36,0.28)] px-2.5 py-1 rounded-full w-fit">
+                    <p className="ui-chip text-xs font-semibold text-orange-600 dark:text-orange-300 bg-[rgba(251,191,36,0.16)] border border-[rgba(251,191,36,0.28)] px-2.5 py-1 rounded-full w-fit">
                       Listo hace {daysAgo} dias
                     </p>
                   )}

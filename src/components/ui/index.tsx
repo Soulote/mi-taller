@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 export type JobStatus = "pendiente" | "en_curso" | "listo" | "entregado";
@@ -26,8 +26,22 @@ export function GlassCard({
   className?: string;
   onClick?: () => void;
 }) {
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick();
+    }
+  };
+
   return (
-    <div className={`glass-card p-4 md:p-5 ${onClick ? "glass-card-interactive cursor-pointer" : ""} ${className}`} onClick={onClick}>
+    <div
+      className={`glass-card p-4 md:p-5 ${onClick ? "glass-card-interactive ui-interactive cursor-pointer" : ""} ${className}`}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={handleKeyDown}
+    >
       {children}
     </div>
   );
@@ -48,7 +62,7 @@ export function GlassHeader({ title = "Mi Taller · v1.1.2" }: { title?: string 
 
 export function StatusChip({ status }: { status: JobStatus }) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border ${statusStyles[status]}`}>
+    <span className={`ui-chip inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border ${statusStyles[status]}`}>
       {statusLabels[status]}
     </span>
   );
@@ -63,7 +77,7 @@ export function PrimaryButton({
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`w-full py-3 px-5 bg-[var(--cta-bg)] text-[var(--cta-text)] rounded-full shadow-[var(--shadow-elev)] font-semibold tracking-tight transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[var(--shadow-strong)] active:translate-y-0 active:scale-[0.98] disabled:opacity-45 disabled:pointer-events-none ${className}`}
+      className={`ui-interactive w-full py-3 px-5 bg-[var(--cta-bg)] text-[var(--cta-text)] rounded-full shadow-[var(--shadow-elev)] font-semibold tracking-tight disabled:opacity-45 disabled:pointer-events-none ${className}`}
       {...props}
     >
       {children}
@@ -78,7 +92,7 @@ export function SecondaryButton({
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`w-full py-2.5 px-4 bg-card text-text border border-cardBorder rounded-full font-medium transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      className={`ui-interactive w-full py-2.5 px-4 bg-card text-text border border-cardBorder rounded-full font-medium disabled:opacity-50 disabled:pointer-events-none ${className}`}
       {...props}
     >
       {children}
@@ -94,7 +108,7 @@ export function ActionPillButton({
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon?: ReactNode }) {
   return (
     <button
-      className={`w-full inline-flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-full border border-[var(--cta-border)] bg-[var(--cta-soft-bg)] text-[var(--cta-soft-text)] text-sm font-semibold transition-all duration-200 hover:bg-[var(--cta-soft-bg-hover)] active:scale-[0.95] disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      className={`ui-interactive w-full inline-flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-full border border-[var(--cta-border)] bg-[var(--cta-soft-bg)] text-[var(--cta-soft-text)] text-sm font-semibold disabled:opacity-50 disabled:pointer-events-none ${className}`}
       {...props}
     >
       <span>{children}</span>
@@ -143,7 +157,7 @@ export function FloatingActionButton({ onClick, icon = "+" }: { onClick: () => v
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--cta-bg)] text-[var(--cta-text)] shadow-[var(--shadow-elev)] flex items-center justify-center text-2xl pb-1 transition-transform duration-200 hover:scale-105 active:scale-95 z-40 md:hidden"
+      className="ui-interactive fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--cta-bg)] text-[var(--cta-text)] shadow-[var(--shadow-elev)] flex items-center justify-center text-2xl pb-1 z-40 md:hidden"
     >
       {icon}
     </button>
@@ -171,7 +185,7 @@ export function ToastBanner({
         <button
           type="button"
           onClick={onClose}
-          className="text-xs text-muted hover:text-text transition-colors"
+          className="ui-interactive rounded-full px-2 py-1 text-xs text-muted hover:text-text"
           aria-label="Cerrar"
         >
           Cerrar
