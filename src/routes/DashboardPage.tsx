@@ -1,6 +1,6 @@
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ActionPillButton,
   FloatingActionButton,
@@ -30,6 +30,7 @@ const NEXT_STATUS: Partial<Record<JobStatus, JobStatus>> = {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [todos, setTodos] = useState<TrabajoPopulated[]>([]);
   const [activeTab, setActiveTab] = useState<JobStatus | "todos">("en_curso");
   const [search, setSearch] = useState("");
@@ -38,6 +39,9 @@ export default function DashboardPage() {
   const [tabInitialized, setTabInitialized] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: "error" | "success"; message: string } | null>(null);
+
+  const estadoParam = searchParams.get("estado");
+  const sortParam = searchParams.get("sort");
 
   useEffect(() => {
     if (!toast) return;
@@ -78,19 +82,32 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (tabInitialized || loading) return;
+    if (loading) return;
+
+    if (estadoParam === "activos") {
+      setActiveTab("todos");
+      setTabInitialized(true);
+      return;
+    }
+
+    if (estadoParam === "pendiente" || estadoParam === "en_curso" || estadoParam === "listo") {
+      setActiveTab(estadoParam);
+      setTabInitialized(true);
+      return;
+    }
+
+    if (tabInitialized) return;
+
     setActiveTab(todos.some((trabajo) => trabajo.estado === "listo") ? "listo" : "en_curso");
     setTabInitialized(true);
-  }, [loading, tabInitialized, todos]);
+  }, [estadoParam, loading, tabInitialized, todos]);
 
   const filtered = useMemo(() => {
     return todos.filter((trabajo) => {
-      if (trabajo.estado === "entregado" && activeTab !== "todos") return false;
-      if (activeTab !== "todos" && trabajo.estado !== activeTab && !search) return false;
+      if (trabajo.estado === "entregado") return false;
+      if (activeTab !== "todos" && trabajo.estado !== activeTab) return false;
 
       if (!search) return true;
-
-      if (trabajo.estado === "entregado") return false;
       const query = search.toLowerCase();
       return (
         trabajo.cliente.nombre.toLowerCase().includes(query) ||
@@ -106,6 +123,25 @@ export default function DashboardPage() {
     const diff = new Date().getTime() - new Date(dateStr).getTime();
     return Math.max(0, Math.floor(diff / (1000 * 3600 * 24)));
   };
+
+  const displayed = useMemo(() => {
+    const rows = [...filtered];
+
+    if (sortParam === "antiguedad_desc") {
+      rows.sort((left, right) => {
+        const leftTime = new Date(left.createdAt).getTime();
+        const rightTime = new Date(right.createdAt).getTime();
+
+        if (Number.isNaN(leftTime) && Number.isNaN(rightTime)) return 0;
+        if (Number.isNaN(leftTime)) return 1;
+        if (Number.isNaN(rightTime)) return -1;
+
+        return leftTime - rightTime;
+      });
+    }
+
+    return rows;
+  }, [filtered, sortParam]);
 
   const handleAdvanceStatus = async (trabajo: TrabajoPopulated) => {
     const nextStatus = NEXT_STATUS[trabajo.estado];
@@ -191,10 +227,10 @@ export default function DashboardPage() {
           <div className="col-span-full py-12 text-center text-muted">Cargando trabajos...</div>
         ) : loadError ? (
           <div className="col-span-full py-12 text-center text-red-500">{loadError}</div>
-        ) : filtered.length === 0 ? (
+        ) : displayed.length === 0 ? (
           <div className="col-span-full py-12 text-center text-muted">No se encontraron trabajos.</div>
         ) : (
-          filtered.map((trabajo) => {
+          displayed.map((trabajo) => {
             const daysAgo = getDaysAgo(trabajo.updatedAt);
             const warningListo = trabajo.estado === "listo" && daysAgo >= 3;
             const canAdvance = Boolean(NEXT_STATUS[trabajo.estado]);

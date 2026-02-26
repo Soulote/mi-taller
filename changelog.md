@@ -7,6 +7,9 @@
 - **Eliminación de scroll horizontal**: el bloque de indicadores se organiza en un grid 2x2 fijo en todas las resoluciones.
 - **Dashboard KPI siempre visible**: los cuatro KPIs operativos se renderizan en todo momento con numero protagonista.
 - **Mejora de microinteracciones**: animaciones fade+scale con stagger y feedback hover/tap mas claro en cards y acciones.
+- **UI: botón Nuevo trabajo sin '+' redundante**: en Acciones rapidas se conserva solo el icono junto al texto.
+- **UI: tarjetas KPI más legibles (label/valor/icon badge)**: tipografia ampliada, jerarquia reforzada y badge circular glass para iconos.
+- **UX: KPIs clickeables navegan a Tablero filtrado**: accesos directos por estado (`activos`, `en_curso`, `listo`) y por antiguedad.
 
 ## [1.1.3] - 2026-02-26
 

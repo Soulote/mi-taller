@@ -59,10 +59,34 @@ export default function HomePage() {
     const enCurso = activos.filter((trabajo) => trabajo.estado === "en_curso").length;
 
     return [
-      { label: "Activos", value: activos.length, icon: ClipboardList },
-      { label: "Listos para entregar", value: listos, icon: ListChecks },
-      { label: "En curso", value: enCurso, icon: Hammer },
-      { label: "Antiguedad max", value: `${calcMaxAgeInDays(activos)} d`, icon: Clock3 },
+      {
+        label: "Activos",
+        value: activos.length,
+        icon: ClipboardList,
+        href: "/dashboard?estado=activos",
+        ariaLabel: "Ver trabajos activos",
+      },
+      {
+        label: "Listos para entregar",
+        value: listos,
+        icon: ListChecks,
+        href: "/dashboard?estado=listo",
+        ariaLabel: "Ver listos para entregar",
+      },
+      {
+        label: "En curso",
+        value: enCurso,
+        icon: Hammer,
+        href: "/dashboard?estado=en_curso",
+        ariaLabel: "Ver trabajos en curso",
+      },
+      {
+        label: "Antiguedad max",
+        value: `${calcMaxAgeInDays(activos)} d`,
+        icon: Clock3,
+        href: "/dashboard?sort=antiguedad_desc",
+        ariaLabel: "Ver trabajos mas antiguos",
+      },
     ];
   }, [activos]);
 
@@ -93,13 +117,17 @@ export default function HomePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1], delay: index * 0.06 }}
               >
-                <GlassCard className="ui-interactive h-full flex flex-col justify-between gap-4 !p-4 md:!p-5">
-                  <div className="inline-flex w-8 h-8 items-center justify-center rounded-xl border border-cardBorder bg-black/5 dark:bg-white/5 text-muted">
-                    <Icon size={15} />
+                <GlassCard
+                  onClick={() => navigate(item.href)}
+                  className="kpi-card ui-interactive h-full flex flex-col justify-between gap-5 !p-5 md:!p-6"
+                  aria-label={item.ariaLabel}
+                >
+                  <div className="inline-flex w-10 h-10 items-center justify-center rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-muted shadow-[0_6px_14px_-10px_rgba(15,23,42,0.75)]">
+                    <Icon size={16} />
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-[10px] md:text-[11px] uppercase tracking-[0.1em] text-muted font-semibold">{item.label}</p>
-                    <p className="text-[2rem] md:text-[2.4rem] font-semibold tracking-tight leading-none">{item.value}</p>
+                  <div className="flex flex-col gap-1.5">
+                    <p className="text-[15px] md:text-base leading-tight tracking-[0.01em] text-muted font-medium">{item.label}</p>
+                    <p className="text-[2.5rem] md:text-[3rem] font-semibold tracking-tight leading-none">{item.value}</p>
                   </div>
                 </GlassCard>
               </motion.div>
@@ -128,7 +156,7 @@ export default function HomePage() {
         <GlassCard className="!p-3.5 md:!p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <PrimaryButton className="!justify-center !inline-flex !items-center !gap-2" onClick={() => navigate("/trabajos/nuevo")}>
-              <Plus size={16} /> + Nuevo trabajo
+              <Plus size={16} /> Nuevo trabajo
             </PrimaryButton>
             <SecondaryButton className="!justify-center !inline-flex !items-center !gap-2" onClick={() => navigate("/dashboard")}>
               <ClipboardList size={16} /> Ir al Tablero

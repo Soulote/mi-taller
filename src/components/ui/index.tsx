@@ -23,11 +23,12 @@ export function GlassCard({
   children,
   className = "",
   onClick,
+  ...props
 }: {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
-}) {
+} & React.HTMLAttributes<HTMLDivElement>) {
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!onClick) return;
     if (event.key === "Enter" || event.key === " ") {
@@ -43,6 +44,7 @@ export function GlassCard({
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={handleKeyDown}
+      {...props}
     >
       {children}
     </div>
