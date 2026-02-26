@@ -1,5 +1,5 @@
 import type { JobStatus } from "@/components/ui";
-import { getSupabaseBrowserClient } from "./supabaseClient";
+import { getSupabaseBrowserClient } from "./supabase";
 
 export interface Cliente {
     id: string;

@@ -1,64 +1,63 @@
-# Mi Taller v1.1.1
+# Mi Taller v1.2.0
 
-Sistema de gestion interna para trabajos de reparacion (PCs, notebooks, impresoras, etc.).
-Disenado especialmente para uso en PC y telefonos moviles, asegurando que no se olviden entregas ni detalles de cada trabajo.
+SPA para gestion interna de trabajos de reparacion (PCs, notebooks, impresoras y mas), con UI glass sobria y persistencia real en Supabase.
 
-## Tecnologias
+## Stack
 
-- Next.js (App Router)
-- TypeScript
+- Vite + React 18 + TypeScript
+- React Router (SPA)
 - Tailwind CSS
-- Supabase (Postgres + API)
-- Deploy recomendado: Vercel
+- Supabase (Postgres + REST)
 
-## Persistencia
+## Variables de entorno
 
-La app usa Supabase de forma obligatoria para listar, crear y actualizar trabajos.
-Si faltan `NEXT_PUBLIC_SUPABASE_URL` o `NEXT_PUBLIC_SUPABASE_ANON_KEY`, la app muestra error de configuracion y no usa mocks.
+Usar archivo `.env` o `.env.local` con:
 
-## Como ejecutar localmente
+```bash
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
 
-1. Instalar dependencias:
+Si faltan variables, la app muestra error visible y hace `console.error`.
+
+## Desarrollo local
 
 ```bash
 npm install
-```
-
-2. Copiar variables de entorno:
-
-```bash
 cp .env.example .env.local
-```
-
-3. Completar `.env.local` con tus valores de Supabase.
-
-4. Iniciar el servidor de desarrollo:
-
-```bash
 npm run dev
 ```
 
-5. Abrir en el navegador:
+Abrir `http://localhost:5173`.
 
-`http://localhost:3000`
+## Build
 
-## Setup de Supabase
+```bash
+npm run build
+npm run preview
+```
 
-1. Crear un proyecto en Supabase.
-2. En el SQL Editor, ejecutar `supabase/schema.sql`.
-3. (Opcional) Cargar datos iniciales ejecutando `supabase/seed.sql`.
-4. Copiar URL y anon key del proyecto a `.env.local`.
+El output de produccion queda en `dist/`.
 
-## Deploy a Vercel (staging)
+## Deploy en Vercel
 
-1. Importar el repo en Vercel.
-2. En `Settings -> Environment Variables`, agregar:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-3. Hacer deploy de la rama principal o una rama de staging.
+- Framework preset: `Vite` (detectado automaticamente).
+- Build command: `npm run build`.
+- Output directory: `dist`.
+- Environment Variables:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
 
-## Estructura
+Se agrega `vercel.json` con rewrite global a `index.html` para soportar rutas SPA (por ejemplo, acceso directo a `/trabajos/:id`).
 
-- `/src/app`: rutas y paginas (`/login`, `/dashboard`, `/trabajos/[id]`, `/trabajos/nuevo`, `/historial`).
-- `/src/lib`: cliente de Supabase, repositorio de trabajos y utilidades (`whatsapp.ts`).
-- `/supabase`: esquema SQL y semilla opcional.
+## Persistencia Supabase
+
+- Dashboard e historial leen datos con `supabase.from("trabajos").select(...)`.
+- Alta de trabajo:
+  1. Buscar cliente por telefono.
+  2. Crear cliente si no existe (o actualizar nombre si cambio).
+  3. Insertar equipo.
+  4. Insertar trabajo con `estado = pendiente`.
+- Edicion y cambio de estado usan `update(...).eq("id", ...).select("*").single()`.
+
+En Network deben verse requests a `https://<project>.supabase.co/rest/v1/*`.

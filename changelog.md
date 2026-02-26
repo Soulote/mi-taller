@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0] - 2026-02-26
+
+### Cambiado
+- **Migracion a Vite + React (SPA)**: reemplazo completo de Next.js App Router por cliente unico con React Router.
+- **Simplificacion de deploy y env vars**: nuevas variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`, build output en `dist` y configuracion de Vercel para SPA.
+- **Persistencia Supabase visible en Network**: alta, listado y actualizacion de trabajos ejecutan llamadas `rest/v1` desde el navegador sin RSC ni Server Actions.
+
 ## [1.1.1] - 2026-02-26
 
 ### Fix
