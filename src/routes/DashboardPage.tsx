@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
+  ActionPillButton,
   FloatingActionButton,
   GlassCard,
   JobStatus,
   PrimaryButton,
-  StatusPill,
+  StatusChip,
   ToastBanner,
 } from "@/components/ui";
 import {
@@ -130,39 +132,39 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto w-full px-4 md:px-6 pb-24 md:pb-8 flex flex-col gap-6">
+    <div className="max-w-5xl mx-auto w-full px-4 md:px-6 pb-24 md:pb-8 flex flex-col gap-5 md:gap-6">
       {toast && <ToastBanner message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
-        <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-          <h2 className="text-2xl font-bold">Tablero</h2>
+      <div className="flex flex-col gap-3.5 md:gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-[1.65rem] leading-tight font-semibold tracking-tight">Tablero</h2>
           <button
             onClick={() => navigate("/historial")}
-            className="sm:hidden text-sm font-medium text-muted hover:text-text px-2"
+            className="sm:hidden px-3 py-1.5 rounded-full border border-cardBorder bg-card text-xs font-semibold text-muted hover:text-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
             Historial
           </button>
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={() => navigate("/historial")}
+              className="px-3.5 py-2 rounded-full border border-cardBorder bg-card text-sm font-medium text-muted hover:text-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            >
+              Historial
+            </button>
+            <PrimaryButton className="!w-auto !py-2 !px-4 text-sm" onClick={() => navigate("/trabajos/nuevo")}>
+              + Nuevo
+            </PrimaryButton>
+          </div>
         </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+
+        <div className="flex items-center gap-3 w-full">
           <input
             type="search"
             placeholder="Buscar..."
-            className="px-4 py-2 bg-card border border-cardBorder rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 w-full sm:w-64 shadow-sm"
+            className="px-4 py-2.5 bg-card border border-cardBorder rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 w-full sm:max-w-sm shadow-sm"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <button
-            onClick={() => navigate("/historial")}
-            className="hidden sm:block text-sm font-medium text-muted hover:text-text whitespace-nowrap px-2"
-          >
-            Historial
-          </button>
-          <PrimaryButton
-            className="hidden md:block !w-auto !py-2 !px-4 whitespace-nowrap"
-            onClick={() => navigate("/trabajos/nuevo")}
-          >
-            + Nuevo
-          </PrimaryButton>
         </div>
       </div>
 
@@ -184,7 +186,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
         {loading ? (
           <div className="col-span-full py-12 text-center text-muted">Cargando trabajos...</div>
         ) : loadError ? (
@@ -201,51 +203,49 @@ export default function DashboardPage() {
               <GlassCard
                 key={trabajo.id}
                 onClick={() => navigate(`/trabajos/${trabajo.id}`)}
-                className="flex flex-col gap-3 group h-full"
+                className="flex flex-col gap-3.5 h-full"
               >
                 <div className="flex justify-between items-start gap-2">
-                  <StatusPill status={trabajo.estado} />
+                  <StatusChip status={trabajo.estado} />
                   <span className="text-xs text-muted whitespace-nowrap font-medium">Hace {daysAgo} d</span>
                 </div>
 
-                <div>
-                  <h3 className="font-semibold text-lg leading-tight mb-0.5">{trabajo.cliente.nombre}</h3>
-                  <p className="text-sm text-muted">{trabajo.cliente.telefono}</p>
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-semibold text-[1.08rem] leading-tight tracking-tight">{trabajo.cliente.nombre}</h3>
+                  <p className="text-sm leading-none text-muted">{trabajo.cliente.telefono}</p>
                 </div>
 
-                <div className="bg-black/5 dark:bg-white/5 rounded-lg p-3 text-sm mt-auto">
-                  <p className="font-medium text-text mb-1">
-                    {trabajo.equipo.tipo} · {trabajo.equipo.marcaModelo}
-                  </p>
-                  <p className="text-muted line-clamp-2">{trabajo.problema}</p>
-                </div>
+                <p className="text-sm font-medium text-text leading-snug">
+                  {trabajo.equipo.tipo} · {trabajo.equipo.marcaModelo}
+                </p>
 
-                <div className="mt-1 flex flex-col gap-2">
-                  <p className="text-sm">
-                    <span className="font-medium text-muted">Falta: </span>
-                    <span className={trabajo.queFalta ? "text-text" : "text-muted italic"}>
-                      {trabajo.queFalta || "Sin definir"}
-                    </span>
-                  </p>
+                <p className="text-sm leading-relaxed text-muted line-clamp-2">{trabajo.problema}</p>
+
+                <div className="mt-auto flex flex-col gap-2.5">
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-xs">
+                    <span className="uppercase tracking-[0.08em] text-muted font-semibold">Falta</span>
+                    <span className={trabajo.queFalta ? "text-text" : "text-muted italic"}>{trabajo.queFalta || "Sin definir"}</span>
+                  </div>
 
                   {warningListo && (
-                    <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded w-fit">
+                    <p className="text-xs font-semibold text-orange-600 dark:text-orange-300 bg-[rgba(251,191,36,0.16)] border border-[rgba(251,191,36,0.28)] px-2.5 py-1 rounded-full w-fit">
                       Listo hace {daysAgo} dias
                     </p>
                   )}
 
                   {canAdvance && (
-                    <button
+                    <ActionPillButton
                       type="button"
-                      onClick={(event) => {
+                      onClick={(event: MouseEvent<HTMLButtonElement>) => {
                         event.stopPropagation();
                         void handleAdvanceStatus(trabajo);
                       }}
                       disabled={savingId === trabajo.id}
-                      className="mt-1 px-3 py-2 rounded-lg border border-cardBorder bg-card text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-60"
+                      icon={<ArrowRight size={16} strokeWidth={2.2} />}
+                      className="mt-0.5"
                     >
                       {savingId === trabajo.id ? "Actualizando..." : "Pasar al siguiente estado"}
-                    </button>
+                    </ActionPillButton>
                   )}
                 </div>
               </GlassCard>

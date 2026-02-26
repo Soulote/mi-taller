@@ -5,28 +5,50 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f3f4f6;
-  --bg-accent: radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.95), transparent 42%),
-    radial-gradient(circle at 85% 0%, rgba(156, 163, 175, 0.18), transparent 30%),
-    linear-gradient(180deg, #f4f5f7 0%, #e9edf1 100%);
-  --card: rgba(255, 255, 255, 0.5);
-  --cardBorder: rgba(255, 255, 255, 0.38);
+  --bg: #eceff3;
+  --bg-accent: radial-gradient(circle at 8% 6%, rgba(255, 255, 255, 0.78), transparent 42%),
+    radial-gradient(circle at 94% 0%, rgba(148, 163, 184, 0.16), transparent 36%),
+    linear-gradient(180deg, #f3f5f8 0%, #e8ecf1 100%);
+  --card: rgba(255, 255, 255, 0.68);
+  --cardBorder: rgba(255, 255, 255, 0.72);
   --text: #111827;
-  --muted: #6b7280;
-  --shadow: 0 14px 40px -20px rgba(17, 24, 39, 0.35), 0 4px 14px -4px rgba(17, 24, 39, 0.15);
+  --muted: #64748b;
+  --card-blur: 10px;
+  --header-blur: 12px;
+  --radius-card: 20px;
+  --radius-pill: 999px;
+  --shadow: 0 8px 26px -18px rgba(15, 23, 42, 0.45), 0 2px 10px -6px rgba(15, 23, 42, 0.2);
+  --shadow-elev: 0 10px 24px -16px rgba(17, 24, 39, 0.6), 0 2px 8px -6px rgba(17, 24, 39, 0.28);
+  --shadow-strong: 0 14px 26px -16px rgba(17, 24, 39, 0.5), 0 8px 16px -10px rgba(17, 24, 39, 0.28);
+  --cta-bg: #111827;
+  --cta-text: #f8fafc;
+  --cta-border: rgba(15, 23, 42, 0.24);
+  --cta-soft-bg: rgba(17, 24, 39, 0.08);
+  --cta-soft-bg-hover: rgba(17, 24, 39, 0.13);
+  --cta-soft-text: #1f2937;
+  --noise-opacity: 0.03;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f172a;
-    --bg-accent: radial-gradient(circle at 20% 0%, rgba(71, 85, 105, 0.25), transparent 38%),
-      radial-gradient(circle at 90% 10%, rgba(15, 23, 42, 0.8), transparent 50%),
-      linear-gradient(180deg, #111827 0%, #0b1120 100%);
-    --card: rgba(3, 7, 18, 0.42);
-    --cardBorder: rgba(255, 255, 255, 0.14);
+    --bg: #0c1526;
+    --bg-accent: radial-gradient(circle at 8% -2%, rgba(71, 85, 105, 0.28), transparent 38%),
+      radial-gradient(circle at 98% 0%, rgba(15, 23, 42, 0.72), transparent 48%),
+      linear-gradient(180deg, #111a2b 0%, #090f1d 100%);
+    --card: rgba(15, 23, 42, 0.58);
+    --cardBorder: rgba(148, 163, 184, 0.24);
     --text: #f8fafc;
-    --muted: #94a3b8;
-    --shadow: 0 14px 36px -22px rgba(2, 6, 23, 0.9), 0 4px 10px -4px rgba(2, 6, 23, 0.6);
+    --muted: #9ca3af;
+    --shadow: 0 14px 34px -24px rgba(2, 6, 23, 0.9), 0 6px 14px -10px rgba(2, 6, 23, 0.68);
+    --shadow-elev: 0 16px 34px -26px rgba(2, 6, 23, 0.95), 0 8px 16px -12px rgba(2, 6, 23, 0.8);
+    --shadow-strong: 0 22px 36px -24px rgba(2, 6, 23, 0.96), 0 10px 20px -12px rgba(2, 6, 23, 0.88);
+    --cta-bg: #f8fafc;
+    --cta-text: #111827;
+    --cta-border: rgba(203, 213, 225, 0.3);
+    --cta-soft-bg: rgba(226, 232, 240, 0.12);
+    --cta-soft-bg-hover: rgba(226, 232, 240, 0.2);
+    --cta-soft-text: #e2e8f0;
+    --noise-opacity: 0.025;
   }
 }
 
@@ -43,22 +65,45 @@ body,
 body {
   margin: 0;
   color: var(--text);
+  background-color: var(--bg);
   background: var(--bg-accent);
   font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--noise-opacity);
+  background-image: radial-gradient(rgba(15, 23, 42, 0.65) 0.7px, transparent 0.7px);
+  background-size: 3px 3px;
+  z-index: -1;
+}
+
 @layer utilities {
   .glass-card {
-    @apply backdrop-blur-xl rounded-2xl;
+    border-radius: var(--radius-card);
+    backdrop-filter: blur(var(--card-blur));
     background-color: var(--card);
     border: 1px solid var(--cardBorder);
     box-shadow: var(--shadow);
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+
+  .glass-card-interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-elev);
+  }
+
+  .glass-card-interactive:active {
+    transform: scale(0.99);
   }
 
   .glass-header {
-    @apply sticky top-0 z-50 backdrop-blur-xl;
+    @apply sticky top-0 z-50;
+    backdrop-filter: blur(var(--header-blur));
     background-color: color-mix(in srgb, var(--card) 90%, transparent);
     border-bottom: 1px solid var(--cardBorder);
   }

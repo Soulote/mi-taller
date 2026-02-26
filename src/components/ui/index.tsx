@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 export type JobStatus = "pendiente" | "en_curso" | "listo" | "entregado";
 
 const statusStyles: Record<JobStatus, string> = {
-  pendiente: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800/50",
-  en_curso: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50",
-  listo: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50",
-  entregado: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
+  pendiente: "border-[rgba(245,158,11,0.45)] bg-[rgba(245,158,11,0.15)] text-[rgb(146,92,0)] dark:border-[rgba(245,158,11,0.5)] dark:bg-[rgba(245,158,11,0.2)] dark:text-[rgb(253,230,138)]",
+  en_curso: "border-[rgba(14,116,144,0.4)] bg-[rgba(6,182,212,0.14)] text-[rgb(8,89,121)] dark:border-[rgba(14,165,233,0.5)] dark:bg-[rgba(14,165,233,0.2)] dark:text-[rgb(186,230,253)]",
+  listo: "border-[rgba(16,185,129,0.45)] bg-[rgba(16,185,129,0.14)] text-[rgb(4,120,87)] dark:border-[rgba(16,185,129,0.5)] dark:bg-[rgba(16,185,129,0.2)] dark:text-[rgb(167,243,208)]",
+  entregado: "border-[rgba(107,114,128,0.4)] bg-[rgba(107,114,128,0.12)] text-[rgb(55,65,81)] dark:border-[rgba(148,163,184,0.35)] dark:bg-[rgba(71,85,105,0.22)] dark:text-[rgb(203,213,225)]",
 };
 
 const statusLabels: Record<JobStatus, string> = {
@@ -27,32 +27,34 @@ export function GlassCard({
   onClick?: () => void;
 }) {
   return (
-    <div className={`glass-card p-4 md:p-6 ${onClick ? "cursor-pointer" : ""} ${className}`} onClick={onClick}>
+    <div className={`glass-card p-4 md:p-5 ${onClick ? "glass-card-interactive cursor-pointer" : ""} ${className}`} onClick={onClick}>
       {children}
     </div>
   );
 }
 
-export function GlassHeader({ title = "Mi Taller · v1.2.0" }: { title?: string }) {
+export function GlassHeader({ title = "Mi Taller · v1.1.2" }: { title?: string }) {
   return (
-    <header className="glass-header px-4 py-3 flex justify-between items-center mb-6">
-      <Link to="/dashboard" className="text-lg font-semibold tracking-tight">
+    <header className="glass-header px-4 md:px-6 py-2.5 md:py-3.5 flex justify-between items-center mb-4 md:mb-6">
+      <Link to="/dashboard" className="text-[0.98rem] md:text-lg font-semibold tracking-tight leading-none">
         {title}
       </Link>
-      <Link to="/login" className="text-sm text-muted hover:text-text transition-colors">
+      <Link to="/login" className="text-xs md:text-sm text-muted hover:text-text transition-colors">
         Salir
       </Link>
     </header>
   );
 }
 
-export function StatusPill({ status }: { status: JobStatus }) {
+export function StatusChip({ status }: { status: JobStatus }) {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusStyles[status]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border ${statusStyles[status]}`}>
       {statusLabels[status]}
     </span>
   );
 }
+
+export const StatusPill = StatusChip;
 
 export function PrimaryButton({
   children,
@@ -61,7 +63,7 @@ export function PrimaryButton({
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`w-full py-3 px-4 bg-gray-900 text-white dark:bg-white dark:text-gray-900 rounded-xl shadow-glass font-medium transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      className={`w-full py-3 px-5 bg-[var(--cta-bg)] text-[var(--cta-text)] rounded-full shadow-[var(--shadow-elev)] font-semibold tracking-tight transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[var(--shadow-strong)] active:translate-y-0 active:scale-[0.98] disabled:opacity-45 disabled:pointer-events-none ${className}`}
       {...props}
     >
       {children}
@@ -76,10 +78,27 @@ export function SecondaryButton({
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      className={`w-full py-3 px-4 bg-card text-text border border-cardBorder rounded-xl shadow-glass font-medium transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      className={`w-full py-2.5 px-4 bg-card text-text border border-cardBorder rounded-full font-medium transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${className}`}
       {...props}
     >
       {children}
+    </button>
+  );
+}
+
+export function ActionPillButton({
+  children,
+  icon,
+  className = "",
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon?: ReactNode }) {
+  return (
+    <button
+      className={`w-full inline-flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-full border border-[var(--cta-border)] bg-[var(--cta-soft-bg)] text-[var(--cta-soft-text)] text-sm font-semibold transition-all duration-200 hover:bg-[var(--cta-soft-bg-hover)] active:scale-[0.95] disabled:opacity-50 disabled:pointer-events-none ${className}`}
+      {...props}
+    >
+      <span>{children}</span>
+      {icon && <span className="shrink-0">{icon}</span>}
     </button>
   );
 }
@@ -124,7 +143,7 @@ export function FloatingActionButton({ onClick, icon = "+" }: { onClick: () => v
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-glass flex items-center justify-center text-2xl pb-1 transition-transform hover:scale-105 active:scale-95 z-40 md:hidden"
+      className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--cta-bg)] text-[var(--cta-text)] shadow-[var(--shadow-elev)] flex items-center justify-center text-2xl pb-1 transition-transform duration-200 hover:scale-105 active:scale-95 z-40 md:hidden"
     >
       {icon}
     </button>
@@ -142,8 +161,8 @@ export function ToastBanner({
 }) {
   const toneClass =
     type === "success"
-      ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
-      : "border-red-500/50 bg-red-500/15 text-red-200";
+      ? "border-[rgba(16,185,129,0.35)] bg-[rgba(16,185,129,0.13)] text-[rgb(6,95,70)] dark:text-[rgb(167,243,208)]"
+      : "border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.13)] text-[rgb(127,29,29)] dark:text-[rgb(254,202,202)]";
 
   return (
     <div className={`fixed top-4 right-4 z-50 max-w-sm rounded-xl border px-4 py-3 shadow-glass backdrop-blur-xl ${toneClass}`}>

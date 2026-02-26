@@ -5,6 +5,7 @@ import {
   JobStatus,
   PrimaryButton,
   SecondaryButton,
+  StatusChip,
   TextArea,
   TextField,
   ToastBanner,
@@ -231,7 +232,7 @@ export default function TrabajoDetallePage() {
   const total = edits.materialesCosto + edits.manoObra;
 
   return (
-    <div className="max-w-3xl mx-auto w-full px-4 md:px-6 pb-12 flex flex-col gap-6">
+    <div className="max-w-3xl mx-auto w-full px-4 md:px-6 pb-12 flex flex-col gap-5 md:gap-6">
       {toast && <ToastBanner message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <div className="flex items-center gap-3">
@@ -253,18 +254,21 @@ export default function TrabajoDetallePage() {
           </svg>
         </button>
 
-        <div className="flex flex-col">
-          <h2 className="text-2xl font-bold leading-tight truncate">{data.cliente.nombre}</h2>
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-semibold tracking-tight leading-tight truncate">{data.cliente.nombre}</h2>
           <p className="text-sm text-muted">
             {data.equipo.tipo} · {data.equipo.marcaModelo}
           </p>
+          <div className="pt-1">
+            <StatusChip status={data.estado} />
+          </div>
         </div>
       </div>
 
       <GlassCard className="flex flex-col gap-4">
         <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Estado del Trabajo</h3>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
           {STATUS_OPTS.map((opt) => (
             <button
               key={opt.value}
@@ -272,9 +276,9 @@ export default function TrabajoDetallePage() {
                 void handleStatusChange(opt.value);
               }}
               disabled={isSaving}
-              className={`py-2 px-3 rounded-xl text-sm font-medium transition-all border ${
+              className={`py-2 px-3 rounded-full text-sm font-medium transition-all border ${
                 data.estado === opt.value
-                  ? "bg-gray-900 border-gray-900 text-white dark:bg-white dark:border-white dark:text-gray-900 shadow-md"
+                  ? "bg-[var(--cta-bg)] border-[var(--cta-bg)] text-[var(--cta-text)] shadow-[var(--shadow-elev)]"
                   : "bg-card border-cardBorder text-text hover:bg-black/5 dark:hover:bg-white/5"
               }`}
             >
@@ -289,7 +293,7 @@ export default function TrabajoDetallePage() {
         )}
       </GlassCard>
 
-      <GlassCard className="flex flex-col gap-5">
+      <GlassCard className="flex flex-col gap-4.5">
         <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Detalles</h3>
 
         <TextArea
@@ -312,7 +316,7 @@ export default function TrabajoDetallePage() {
         />
       </GlassCard>
 
-      <GlassCard className="flex flex-col gap-5">
+      <GlassCard className="flex flex-col gap-4.5">
         <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Presupuesto</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -332,7 +336,7 @@ export default function TrabajoDetallePage() {
           />
         </div>
 
-        <div className="flex justify-between items-center p-4 bg-black/5 dark:bg-white/5 rounded-xl mt-2 border border-cardBorder">
+        <div className="flex justify-between items-center p-4 bg-black/5 dark:bg-white/5 rounded-2xl mt-2 border border-cardBorder">
           <span className="font-semibold text-muted">Total a cobrar:</span>
           <span className="text-2xl font-bold">${total.toLocaleString("es-AR")}</span>
         </div>

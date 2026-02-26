@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GlassCard, StatusPill } from "@/components/ui";
+import { GlassCard, StatusChip } from "@/components/ui";
 import { listTrabajosPopulated, type TrabajoPopulated } from "@/lib/trabajosRepository";
 
 export default function HistorialPage() {
@@ -58,7 +58,7 @@ export default function HistorialPage() {
   }, [todos, search]);
 
   return (
-    <div className="max-w-5xl mx-auto w-full px-4 md:px-6 pb-8 flex flex-col gap-6">
+    <div className="max-w-5xl mx-auto w-full px-4 md:px-6 pb-8 flex flex-col gap-5 md:gap-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
         <div className="flex items-center gap-3">
           <button
@@ -78,19 +78,19 @@ export default function HistorialPage() {
               <path d="m15 18-6-6 6-6" />
             </svg>
           </button>
-          <h2 className="text-2xl font-bold">Historial</h2>
+          <h2 className="text-[1.65rem] leading-tight font-semibold tracking-tight">Historial</h2>
         </div>
 
         <input
           type="search"
           placeholder="Buscar entregados..."
-          className="px-4 py-2 bg-card border border-cardBorder rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 w-full sm:w-64 shadow-sm"
+          className="px-4 py-2.5 bg-card border border-cardBorder rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 w-full sm:w-72 shadow-sm"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
         {loading ? (
           <div className="col-span-full py-12 text-center text-muted">Cargando historial...</div>
         ) : loadError ? (
@@ -102,25 +102,29 @@ export default function HistorialPage() {
             <GlassCard
               key={trabajo.id}
               onClick={() => navigate(`/trabajos/${trabajo.id}`)}
-              className="flex flex-col gap-3 group h-full"
+              className="flex flex-col gap-3.5 h-full"
             >
               <div className="flex justify-between items-start gap-2">
-                <StatusPill status={trabajo.estado} />
+                <StatusChip status={trabajo.estado} />
                 <span className="text-xs text-muted whitespace-nowrap font-medium">
                   {new Date(trabajo.updatedAt).toLocaleDateString()}
                 </span>
               </div>
 
-              <div>
-                <h3 className="font-semibold text-lg leading-tight mb-0.5">{trabajo.cliente.nombre}</h3>
-                <p className="text-sm text-muted">{trabajo.cliente.telefono}</p>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-semibold text-[1.08rem] leading-tight tracking-tight">{trabajo.cliente.nombre}</h3>
+                <p className="text-sm leading-none text-muted">{trabajo.cliente.telefono}</p>
               </div>
 
-              <div className="bg-black/5 dark:bg-white/5 rounded-lg p-3 text-sm mt-auto">
-                <p className="font-medium text-text mb-1">
-                  {trabajo.equipo.tipo} · {trabajo.equipo.marcaModelo}
-                </p>
-                <p className="text-muted line-clamp-2">{trabajo.problema}</p>
+              <p className="text-sm font-medium text-text leading-snug">
+                {trabajo.equipo.tipo} · {trabajo.equipo.marcaModelo}
+              </p>
+
+              <p className="text-sm leading-relaxed text-muted line-clamp-2">{trabajo.problema}</p>
+
+              <div className="mt-auto inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-xs">
+                <span className="uppercase tracking-[0.08em] text-muted font-semibold">Falta</span>
+                <span className={trabajo.queFalta ? "text-text" : "text-muted italic"}>{trabajo.queFalta || "Sin definir"}</span>
               </div>
             </GlassCard>
           ))

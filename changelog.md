@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2] - 2026-02-26
+
+### Cambiado
+- **Refinamiento visual glass iOS sobrio**: nuevos tokens de color, bordes, sombras y blur mas suave para mejorar legibilidad sin perder identidad.
+- **Jerarquia de cards y chips unificados**: cliente, telefono, equipo, descripcion y bloque "Falta" con mejor espaciado y componente `StatusChip` consistente.
+- **Controles estilo iOS**: botones pill con microanimaciones, CTA "Pasar al siguiente estado" con icono de flecha y header mas compacto en mobile.
+
 ## [1.2.0] - 2026-02-26
 
 ### Cambiado
