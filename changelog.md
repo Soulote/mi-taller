@@ -10,6 +10,9 @@
 - **UI: botón Nuevo trabajo sin '+' redundante**: en Acciones rapidas se conserva solo el icono junto al texto.
 - **UI: tarjetas KPI más legibles (label/valor/icon badge)**: tipografia ampliada, jerarquia reforzada y badge circular glass para iconos.
 - **UX: KPIs clickeables navegan a Tablero filtrado**: accesos directos por estado (`activos`, `en_curso`, `listo`) y por antiguedad.
+- **Mejora jerarquía visual en KPI Cards**: labels con mayor presencia, composicion icono+titulo horizontal y numero principal mas dominante.
+- **Header con navegación más prominente**: `Inicio` y `Salir` pasan a estilo mas visible con mejor contraste y hover refinado.
+- **Botón “Ir al Tablero” reforzado visualmente**: mayor padding, borde mas definido y feedback hover consistente con la UI glass.
 
 ## [1.1.3] - 2026-02-26
 

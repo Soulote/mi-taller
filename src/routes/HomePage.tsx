@@ -97,7 +97,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => navigate("/dashboard")}
-          className="ui-interactive rounded-full border border-cardBorder bg-card px-3 py-1.5 text-xs font-semibold text-muted hover:text-text"
+          className="ui-interactive rounded-full border border-cardBorder bg-card px-5 py-2.5 text-base font-medium text-text/90 hover:text-text hover:-translate-y-[1px] hover:shadow-[var(--shadow-elev)]"
         >
           Ir al Tablero
         </button>
@@ -119,15 +119,18 @@ export default function HomePage() {
               >
                 <GlassCard
                   onClick={() => navigate(item.href)}
-                  className="kpi-card ui-interactive h-full flex flex-col justify-between gap-5 !p-5 md:!p-6"
+                  className="kpi-card ui-interactive h-full flex flex-col justify-between gap-6 !p-5 md:!p-6"
                   aria-label={item.ariaLabel}
                 >
-                  <div className="inline-flex w-10 h-10 items-center justify-center rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-muted shadow-[0_6px_14px_-10px_rgba(15,23,42,0.75)]">
-                    <Icon size={16} />
+                  <div className="flex items-center gap-3">
+                    <div className="inline-flex w-10 h-10 items-center justify-center rounded-full border border-cardBorder bg-black/5 dark:bg-white/5 text-muted shadow-[0_8px_16px_-12px_rgba(15,23,42,0.8)]">
+                      <Icon size={16} />
+                    </div>
+                    <p className="text-base leading-tight tracking-normal text-text/90 font-semibold">{item.label}</p>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <p className="text-[15px] md:text-base leading-tight tracking-[0.01em] text-muted font-medium">{item.label}</p>
-                    <p className="text-[2.5rem] md:text-[3rem] font-semibold tracking-tight leading-none">{item.value}</p>
+
+                  <div className="pt-1.5">
+                    <p className="text-[2.75rem] md:text-[3rem] font-semibold tracking-tight leading-none">{item.value}</p>
                   </div>
                 </GlassCard>
               </motion.div>
