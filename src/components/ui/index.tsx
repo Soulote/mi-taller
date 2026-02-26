@@ -1,5 +1,7 @@
-import type { KeyboardEvent, ReactNode } from "react";
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import changelogRaw from "../../../changelog.md?raw";
 
 export type JobStatus = "pendiente" | "en_curso" | "listo" | "entregado";
 
@@ -47,16 +49,144 @@ export function GlassCard({
   );
 }
 
-export function GlassHeader({ title = "Mi Taller · v1.1.2" }: { title?: string }) {
+function ChangelogBody() {
+  const lines = useMemo(() => changelogRaw.split("\n"), []);
+
   return (
-    <header className="glass-header px-4 md:px-6 py-2.5 md:py-3.5 flex justify-between items-center mb-4 md:mb-6">
-      <Link to="/dashboard" className="text-[0.98rem] md:text-lg font-semibold tracking-tight leading-none">
-        {title}
-      </Link>
-      <Link to="/login" className="text-xs md:text-sm text-muted hover:text-text transition-colors">
-        Salir
-      </Link>
-    </header>
+    <div className="space-y-1">
+      {lines.map((line, index) => {
+        if (line.startsWith("# ")) {
+          return (
+            <h2 key={index} className="text-xl font-semibold tracking-tight mt-1 mb-2">
+              {line.replace(/^#\s+/, "")}
+            </h2>
+          );
+        }
+
+        if (line.startsWith("## ")) {
+          return (
+            <h3 key={index} className="text-base font-semibold tracking-tight mt-4 mb-1.5">
+              {line.replace(/^##\s+/, "")}
+            </h3>
+          );
+        }
+
+        if (line.startsWith("### ")) {
+          return (
+            <h4 key={index} className="text-sm font-semibold uppercase tracking-[0.08em] text-muted mt-3 mb-1">
+              {line.replace(/^###\s+/, "")}
+            </h4>
+          );
+        }
+
+        if (line.startsWith("- ")) {
+          return (
+            <p key={index} className="text-sm leading-relaxed text-text pl-4 relative">
+              <span className="absolute left-0 top-[0.44rem] w-1.5 h-1.5 rounded-full bg-muted/70" />
+              {line.replace(/^-\s+/, "")}
+            </p>
+          );
+        }
+
+        if (!line.trim()) {
+          return <div key={index} className="h-1" />;
+        }
+
+        return (
+          <p key={index} className="text-sm leading-relaxed text-muted">
+            {line}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
+export function GlassHeader({ title = "Mi Taller · v1.1.3" }: { title?: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <header className="glass-header px-4 md:px-6 py-2.5 md:py-3.5 flex justify-between items-center mb-4 md:mb-6">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="ui-interactive text-[0.98rem] md:text-lg font-semibold tracking-tight leading-none rounded-full px-2 py-1 -ml-2"
+          aria-label="Abrir changelog"
+        >
+          {title}
+        </button>
+
+        <div className="flex items-center gap-1.5">
+          <Link to="/" className="ui-interactive rounded-full px-2.5 py-1 text-xs md:text-sm text-muted hover:text-text">
+            Inicio
+          </Link>
+          <Link to="/login" className="ui-interactive rounded-full px-2.5 py-1 text-xs md:text-sm text-muted hover:text-text">
+            Salir
+          </Link>
+        </div>
+      </header>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="fixed inset-0 z-[70]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/35 backdrop-blur-[1.5px]"
+              onClick={() => setOpen(false)}
+              aria-label="Cerrar changelog"
+            />
+
+            <div className="hidden md:flex absolute inset-0 items-center justify-center p-6">
+              <motion.section
+                initial={{ opacity: 0, scale: 0.96, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: 6 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="glass-card w-full max-w-2xl max-h-[78vh] flex flex-col"
+              >
+                <div className="flex items-center justify-between px-5 py-4 border-b border-cardBorder">
+                  <p className="text-base font-semibold tracking-tight">Changelog</p>
+                  <button type="button" onClick={() => setOpen(false)} className="ui-interactive rounded-full px-3 py-1.5 text-sm text-muted hover:text-text">
+                    Cerrar
+                  </button>
+                </div>
+                <div className="overflow-y-auto px-5 py-4">
+                  <ChangelogBody />
+                </div>
+              </motion.section>
+            </div>
+
+            <div className="md:hidden absolute inset-x-0 bottom-0">
+              <motion.section
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="glass-card rounded-t-3xl rounded-b-none max-h-[80vh] flex flex-col"
+              >
+                <div className="mx-auto mt-2.5 mb-2 h-1 w-10 rounded-full bg-cardBorder" />
+                <div className="flex items-center justify-between px-4 py-2 border-b border-cardBorder">
+                  <p className="text-sm font-semibold tracking-tight">Changelog</p>
+                  <button type="button" onClick={() => setOpen(false)} className="ui-interactive rounded-full px-2.5 py-1 text-xs text-muted hover:text-text">
+                    Cerrar
+                  </button>
+                </div>
+                <div className="overflow-y-auto px-4 py-3 pb-5">
+                  <ChangelogBody />
+                </div>
+              </motion.section>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

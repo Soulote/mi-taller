@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3] - 2026-02-26
+
+### Cambiado
+- **UX: nueva pagina Inicio (resumen operativo)**: se agrega landing en `/` con KPIs diarios sin finanzas, recordatorios y accesos rapidos.
+- **UX: changelog accesible desde header**: al tocar "Mi Taller · v1.1.3" se abre modal/sheet animado con el contenido de `CHANGELOG.md`.
+- **Motion: transiciones entre rutas**: navegacion con `AnimatePresence` y animaciones de entrada/salida para mejorar continuidad visual.
+
 ## [1.1.2] - 2026-02-26
 
 ### Cambiado
